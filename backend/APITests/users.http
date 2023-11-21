@@ -22,7 +22,7 @@ POST http://localhost:3000/login HTTP/1.1
 Content-Type: application/json
 
 {
-    "usernameOrEmail": "user",
+    "usernameOrEmail": "user123",
     "password": "DieAppistToll"
 }
 
@@ -32,8 +32,8 @@ POST http://localhost:3000/register HTTP/1.1
 Content-Type: application/json
 
 {
-    "name": "user",
-    "email": "user@example.com",
+    "name": "user123",
+    "email": "user123@example.com",
     "password": "DieAppistToll"
 }
 
