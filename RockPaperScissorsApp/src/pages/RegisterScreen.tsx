@@ -1,4 +1,5 @@
-import React from 'react';
+import React from "react";
+import { Link } from "react-router-dom";
 
 function RegisterScreen() {
   return (
@@ -45,12 +46,14 @@ function RegisterScreen() {
               required
             />
           </div>
-          <button
-            type="submit"
-            className="bg-blue-500 text-white px-4 py-2 rounded cursor-pointer transition duration-300 hover:bg-blue-700"
-          >
-            Register
-          </button>
+          <Link to="/home">
+            <button
+              type="submit"
+              className="bg-blue-500 text-white px-4 py-2 rounded cursor-pointer transition duration-300 hover:bg-blue-700"
+            >
+              Register
+            </button>
+          </Link>
         </form>
       </div>
     </div>
