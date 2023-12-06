@@ -4,6 +4,13 @@ const cors = require("cors");
 const { config } = require("dotenv");
 const bodyParser = require("body-parser");
 const { Server } = require("socket.io");
+const bcrypt = require("bcrypt");
+
+const {
+  getDataForRegistration,
+  getDataForLogin,
+  addUser,
+} = require("./db/dbFunctions");
 
 const app = express();
 
@@ -36,6 +43,75 @@ io.on("connection", (socket) => {
 
     // Sende die aktualisierten Lobbys an alle Benutzer
     io.emit("activeLobbies", activeLobbies);
+  });
+
+  socket.on("register", async (user) => {
+    //console.log("Received register event:", user);
+
+    if (!user.name || !user.email || !user.password) {
+      return socket.emit("registerError", {
+        message: "Please fill in all fields!",
+      });
+    }
+
+    try {
+      const existingUser = await getDataForRegistration(user.name, user.email);
+
+      if (existingUser) {
+        if (
+          existingUser.name === user.name &&
+          existingUser.email === user.email
+        ) {
+          return socket.emit("registerError", {
+            message: "Username and email already in use!",
+          });
+        } else if (existingUser.name === user.name) {
+          return socket.emit("registerError", {
+            message: "Username already in use!",
+          });
+        } else if (existingUser.email === user.email) {
+          return socket.emit("registerError", {
+            message: "Email already in use!",
+          });
+        }
+      }
+
+      // Hinzufügen des neuen Benutzers
+      const userId = await addUser(user.name, user.email, user.password);
+      // Setze die Benutzer-ID für diesen Socket
+      socket.currentUserId = userId;
+      socket.emit("registerSuccess", { userId });
+    } catch (error) {
+      console.log(error);
+      socket.emit("registerError", { message: error.message });
+    }
+  });
+
+  socket.on("login", async (loginData) => {
+    try {
+      const user = await getDataForLogin(
+        loginData.usernameOrEmail,
+        loginData.password
+      );
+
+      bcrypt.compare(loginData.password, user.password, (err, result) => {
+        if (err) {
+          return socket.emit("loginError", {
+            message: "Internal Server Error",
+          });
+        }
+        if (result) {
+          socket.currentUserId = user.id;
+          return socket.emit("loginSuccess", { userId: user.id });
+        } else {
+          return socket.emit("loginError", {
+            message: "Username or password incorrect!",
+          });
+        }
+      });
+    } catch (error) {
+      return socket.emit("loginError", { message: error.message });
+    }
   });
 });
 
