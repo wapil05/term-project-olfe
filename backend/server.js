@@ -1,25 +1,43 @@
+// server.js
 const express = require("express");
 const cors = require("cors");
 const { config } = require("dotenv");
 const bodyParser = require("body-parser");
-const http = require('http'); // Importiere das http-Modul für die Verwendung mit Socket.IO
-const socketSetup = require('./socketSetup'); // Passe den Pfad entsprechend an
-
-const userRoutes = require("./routes/userRoutes.js");
-
-config();
+const { Server } = require("socket.io");
 
 const app = express();
+
 app.use(cors());
 app.use(bodyParser.json());
+config();
 
-app.use(userRoutes);
-app.use(express.json());
+const server = require("http").createServer(app);
 
-const server = http.createServer(app); // Erstelle einen HTTP-Server mit deiner Express-App
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+  },
+});
 
-// Füge Socket.IO hinzu
-socketSetup(server); // Verbinde Socket.IO mit dem Server
+// Haltet die Liste der aktiven Lobbys im Server-Speicher
+let activeLobbies = [];
+
+io.on("connection", (socket) => {
+  console.log("a user connected " + socket.id);
+
+  // Sende alle aktiven Lobbys an den gerade verbundenen Benutzer
+  socket.emit("activeLobbies", activeLobbies);
+
+  socket.on("createLobby", (lobby) => {
+    console.log("Received createLobby event:", lobby);
+
+    // Füge die Lobby zur Liste der aktiven Lobbys hinzu
+    activeLobbies.push(lobby);
+
+    // Sende die aktualisierten Lobbys an alle Benutzer
+    io.emit("activeLobbies", activeLobbies);
+  });
+});
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
