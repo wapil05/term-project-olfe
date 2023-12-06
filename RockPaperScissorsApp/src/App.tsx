@@ -3,6 +3,8 @@ import "./App.css";
 import RegisterScreen from "./pages/RegisterScreen";
 import StartScreen from "./pages/StartScreen";
 import LoginScreen from "./pages/LoginScreen";
+import LobbyScreen from "./pages/LobbyScreen";
+import GameScreen from "./pages/GameScreen";
 
 function App() {
   return (
@@ -11,6 +13,8 @@ function App() {
         <Route path="/" element={<RegisterScreen />} />
         <Route path="/home" element={<StartScreen />} />
         <Route path="/login" element={<LoginScreen />} />
+        <Route path="/lobby" element={<LobbyScreen />} />
+        <Route path="/game" element={<GameScreen />} />
       </Routes>
     </Router>
   );
