@@ -13,17 +13,19 @@ const socket = io("http://localhost:3000");
 
 const CreateLobby: React.FC = () => {
   const [lobbyName, setLobbyName] = useAtom(lobbyNameAtom);
-  const [waitingForSecondPlayer, setWaitingForSecondPlayer] = useAtom(
-    waitingForSecondPlayerAtom
-  );
+  const [, setWaitingForSecondPlayer] = useAtom(waitingForSecondPlayerAtom);
   const [activeLobbies, setActiveLobbies] = useAtom(activeLobbiesAtom);
-  const [activePlayer, setActivePlayer] = useAtom(activePlayerAtom);
+  const [activePlayer] = useAtom(activePlayerAtom);
   const [error, setError] = useState<string | null>(null);
 
   const handleCreateLobby = () => {
     const generatedLobbyName = lobbyName;
 
-    // Überprüfe, ob eine Lobby mit dem gleichen Namen bereits existiert
+    if (!activePlayer) {
+      setError("You need to login first.");
+      return;
+    }
+
     const lobbyExists = activeLobbies.some(
       (lobby) => lobby.name === generatedLobbyName
     );
@@ -35,7 +37,6 @@ const CreateLobby: React.FC = () => {
       return;
     }
 
-    // Wenn keine Lobby mit dem gleichen Namen existiert, füge die neue Lobby hinzu
     const newLobby = {
       name: generatedLobbyName,
       player1: activePlayer,

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import io from "socket.io-client";
+import { useAtom } from "jotai";
+import { userAtom, activePlayerAtom } from "../components/states";
 
 const socket = io("http://localhost:3000");
 
@@ -10,38 +12,37 @@ socket.on("connect", () => {
 
 function LoginScreen() {
   const [loginData, setLoginData] = useState({
-    usernameOrEmail: "",
+    name: "",
     password: "",
   });
   const [loginError, setLoginError] = useState<string | null>(null);
+  const [user, setUser] = useAtom(userAtom);
+  const [, setActivePlayer] = useAtom(activePlayerAtom);
+
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    // Füge die Logik für das Senden der Login-Daten an den Server hinzu
-    // Beachte, dass die Socket-Events und die Datenstruktur auf der Serverseite angepasst werden müssen
     socket.emit("login", loginData);
-    console.log("Logging in...");
+    setActivePlayer(user.name);
+    console.log("Logging in user " + user.name);
   };
 
   useEffect(() => {
-    // Höre auf "loginSuccess"-Ereignisse und leite weiter
     const handleLoginSuccess = () => {
       console.log("Login successful. Redirecting to /home");
+
       navigate("/home");
     };
 
     socket.on("loginSuccess", handleLoginSuccess);
 
-    // Aufräumarbeiten, wenn die Komponente unmountet wird
     return () => {
       socket.off("loginSuccess", handleLoginSuccess);
     };
   }, [navigate]);
 
   useEffect(() => {
-    // Höre auf "loginError"-Ereignisse und speichere den Fehler
     const handleLoginError = (error: { message: string }) => {
       console.error("Login Error:", error.message);
       setLoginError(error.message);
@@ -49,13 +50,13 @@ function LoginScreen() {
 
     socket.on("loginError", handleLoginError);
 
-    // Aufräumarbeiten, wenn die Komponente unmountet wird
     return () => {
       socket.off("loginError", handleLoginError);
     };
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUser({ ...user, [e.target.name]: e.target.value });
     setLoginData({ ...loginData, [e.target.name]: e.target.value });
   };
 
@@ -66,16 +67,16 @@ function LoginScreen() {
         <form className="login-form" onSubmit={handleSubmit}>
           <div className="mb-4">
             <label htmlFor="usernameOrEmail" className="block font-semibold">
-              Username or Email:
+              Username:
             </label>
             <input
               type="text"
-              id="usernameOrEmail"
-              name="usernameOrEmail"
-              value={loginData.usernameOrEmail}
+              id="name"
+              name="name"
+              value={loginData.name}
               onChange={handleChange}
               className="border border-gray-300 rounded px-3 py-2 w-full placeholder-gray-500 text-xs"
-              placeholder="Enter your username or email"
+              placeholder="Enter your username"
               required
             />
           </div>

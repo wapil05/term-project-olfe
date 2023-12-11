@@ -89,10 +89,7 @@ io.on("connection", (socket) => {
 
   socket.on("login", async (loginData) => {
     try {
-      const user = await getDataForLogin(
-        loginData.usernameOrEmail,
-        loginData.password
-      );
+      const user = await getDataForLogin(loginData.name, loginData.password);
 
       bcrypt.compare(loginData.password, user.password, (err, result) => {
         if (err) {
@@ -111,6 +108,21 @@ io.on("connection", (socket) => {
       });
     } catch (error) {
       return socket.emit("loginError", { message: error.message });
+    }
+  });
+
+  socket.on("joinLobby", (lobbyName, player2) => {
+    console.log("Received joinLobby event:", lobbyName, player2);
+
+    const lobby = activeLobbies.find((lobby) => lobby.name === lobbyName);
+
+    if (!lobby) {
+      return socket.emit("joinLobbyError", {
+        message: "Lobby does not exist!",
+      });
+    } else {
+      lobby.player2 = player2;
+      io.emit("activeLobbies", activeLobbies);
     }
   });
 });

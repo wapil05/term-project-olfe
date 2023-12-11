@@ -1,4 +1,5 @@
 import { atom } from "jotai";
+import { atomWithStorage } from "jotai/utils";
 
 export const lobbyNameAtom = atom<string>("");
 
@@ -8,7 +9,7 @@ export const activeLobbiesAtom = atom<
   { name: string; player1: string; player2: string }[]
 >([]);
 
-export const activePlayerAtom = atom<string>("");
+export const activePlayerAtom = atomWithStorage<string>("activePlayer", "");
 
 export const lobbyAtom = atom<{
   name: string;
@@ -16,7 +17,7 @@ export const lobbyAtom = atom<{
   player2: string;
 } | null>(null);
 
-export const userAtom = atom({
+export const userAtom = atomWithStorage("user", {
   name: "",
   email: "",
   password: "",

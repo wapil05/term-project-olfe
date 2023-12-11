@@ -14,7 +14,7 @@ socket.on("connect", () => {
 
 function RegisterScreen() {
   const [user, setUser] = useAtom(userAtom);
-  const [activePlayer, setActivePlayer] = useAtom(activePlayerAtom);
+  const [, setActivePlayer] = useAtom(activePlayerAtom);
   const [registrationError, setRegistrationError] = useState<string | null>(
     null
   );
@@ -24,7 +24,6 @@ function RegisterScreen() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Höre auf "registerError"-Ereignisse und speichere den Fehler
     const handleRegisterError = (error: { message: string }) => {
       console.error("Registration Error:", error.message);
       setRegistrationError(error.message);
@@ -32,39 +31,35 @@ function RegisterScreen() {
 
     socket.on("registerError", handleRegisterError);
 
-    // Aufräumarbeiten, wenn die Komponente unmountet wird
     return () => {
       socket.off("registerError", handleRegisterError);
     };
   }, []);
 
   useEffect(() => {
-    // Höre auf "registerSuccess"-Ereignisse und speichere die Benutzer-ID
     const handleRegisterSuccess = (data: { userId: number }) => {
-      console.log("Registration Successful. User ID:", data.userId);
       setRegistrationSuccess(data);
     };
 
     socket.on("registerSuccess", handleRegisterSuccess);
 
-    // Aufräumarbeiten, wenn die Komponente unmountet wird
     return () => {
       socket.off("registerSuccess", handleRegisterSuccess);
     };
   }, []);
 
   useEffect(() => {
-    // Überprüfe, ob die Registrierung erfolgreich war, bevor du weiterleitest
     if (registrationSuccess) {
       console.log("Registration successful. Redirecting to /home");
+      setActivePlayer(user.name);
       navigate("/home");
     }
   }, [registrationSuccess, navigate]);
 
   const handleSubmit = async () => {
-    setActivePlayer(socket.id);
+    setActivePlayer(user.name);
     socket.emit("register", user);
-    console.log("Registering user " + socket.id);
+    console.log("Registering user " + user.name);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
