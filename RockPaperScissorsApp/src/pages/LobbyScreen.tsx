@@ -1,18 +1,62 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useAtom } from "jotai";
+import { activePlayerAtom } from "../components/states";
+import io from "socket.io-client";
+
+const socket = io("http://localhost:3000");
 
 function LobbyScreen() {
+  const navigate = useNavigate();
   const { lobbyId, player1, player2 } = useParams();
 
+  const [activePlayer] = useAtom(activePlayerAtom);
+
   const [selectedOption, setSelectedOption] = useState("");
-  const [isCreator] = useState(false);
+  const [isCreator, setisCreator] = useState(false);
+
+  useEffect(() => {
+    socket.on("startGame", (data) => {
+      console.log("Game started");
+      navigate(
+        `/game/${data.lobbyId}/${data.player1}/${data.player2}/${data.selectedOption}`
+      );
+    });
+  }, []);
+
+  useEffect(() => {
+    if (player1 === activePlayer) {
+      setisCreator(true);
+    }
+  }, [player1]);
+
+  useEffect(() => {
+    socket.on("connect", () => {
+      console.log("Connected to server");
+    });
+
+    socket.on("disconnect", () => {
+      console.log("Disconnected from server");
+    });
+  }, []);
 
   const handleOptionSelect = (option: string) => {
     setSelectedOption(option);
   };
 
   const startGame = () => {
-    console.log(`Spiel starten mit Option: ${selectedOption}`);
+    const data = {
+      lobbyId,
+      player1,
+      player2,
+      selectedOption,
+    };
+
+    console.log("Starting game");
+
+    socket.emit("startGameRequest", data);
+    console.log("startGameRequest event emitted", data);
   };
 
   return (
@@ -71,7 +115,9 @@ function LobbyScreen() {
           </p>
         </div>
         <button
-          className="bg-green-500 text-white px-6 py-3 rounded cursor-pointer"
+          className={`bg-green-500 text-white px-6 py-3 rounded cursor-pointer ${
+            !selectedOption || !isCreator ? "bg-red-500" : ""
+          }`}
           onClick={startGame}
           disabled={!selectedOption || !isCreator}
         >

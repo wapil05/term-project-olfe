@@ -17,7 +17,10 @@ function App() {
           path="/lobby/:lobbyId/:player1/:player2"
           element={<LobbyScreen />}
         />
-        <Route path="/game" element={<GameScreen />} />
+        <Route
+          path="/game/:lobbyId/:player1/:player2/:rounds"
+          element={<GameScreen />}
+        />
       </Routes>
     </Router>
   );

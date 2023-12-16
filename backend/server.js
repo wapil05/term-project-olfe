@@ -30,19 +30,45 @@ const io = new Server(server, {
 let activeLobbies = [];
 
 io.on("connection", (socket) => {
-  console.log("a user connected " + socket.id);
+  console.log("user connected " + socket.id);
 
-  // Sende alle aktiven Lobbys an den gerade verbundenen Benutzer
   socket.emit("activeLobbies", activeLobbies);
 
   socket.on("createLobby", (lobby) => {
-    console.log("Received createLobby event:", lobby);
+    socket.join(lobby.name); // Join the room with the lobby name
+    console.log("Received createLobby event:", lobby.name);
 
-    // Füge die Lobby zur Liste der aktiven Lobbys hinzu
     activeLobbies.push(lobby);
 
-    // Sende die aktualisierten Lobbys an alle Benutzer
     io.emit("activeLobbies", activeLobbies);
+  });
+
+  socket.on("joinLobby", (lobbyName, player2) => {
+    console.log("Received joinLobby event:", lobbyName, player2);
+
+    const lobby = activeLobbies.find((lobby) => lobby.name === lobbyName);
+
+    if (!lobby) {
+      return socket.emit("joinLobbyError", {
+        message: "Lobby does not exist!",
+      });
+    } else if (lobby.player2) {
+      return socket.emit("joinLobbyError", {
+        message: "Lobby is already full!",
+      });
+    } else {
+      lobby.player2 = player2;
+      io.emit("activeLobbies", activeLobbies);
+      socket.join(lobbyName);
+      console.log("Player 2 joined lobby: ", lobbyName);
+      io.to(lobbyName).emit("playerJoined", player2);
+    }
+  });
+
+  socket.on("startGameRequest", (data) => {
+    console.log("data: ", data);
+    io.to(data.lobbyId).emit("startGame", data);
+    console.log("start event emitted");
   });
 
   socket.on("register", async (user) => {
@@ -111,19 +137,8 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("joinLobby", (lobbyName, player2) => {
-    console.log("Received joinLobby event:", lobbyName, player2);
-
-    const lobby = activeLobbies.find((lobby) => lobby.name === lobbyName);
-
-    if (!lobby) {
-      return socket.emit("joinLobbyError", {
-        message: "Lobby does not exist!",
-      });
-    } else {
-      lobby.player2 = player2;
-      io.emit("activeLobbies", activeLobbies);
-    }
+  socket.on("disconnect", () => {
+    console.log("user disconnected " + socket.id);
   });
 });
 
