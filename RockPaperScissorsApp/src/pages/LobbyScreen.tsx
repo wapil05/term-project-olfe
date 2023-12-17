@@ -2,28 +2,38 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useAtom } from "jotai";
-import { activePlayerAtom } from "../components/states";
-import io from "socket.io-client";
-
-const socket = io("http://localhost:3000");
+import { activePlayerAtom, socketAtom } from "../components/states";
 
 function LobbyScreen() {
   const navigate = useNavigate();
-  const { lobbyId, player1, player2 } = useParams();
+  const { lobbyName, player1, player2 } = useParams();
 
   const [activePlayer] = useAtom(activePlayerAtom);
 
   const [selectedOption, setSelectedOption] = useState("");
   const [isCreator, setisCreator] = useState(false);
+  const [socket] = useAtom(socketAtom);
 
   useEffect(() => {
     socket.on("startGame", (data) => {
       console.log("Game started");
       navigate(
-        `/game/${data.lobbyId}/${data.player1}/${data.player2}/${data.selectedOption}`
+        `/game/${data.lobbyName}/${data.player1}/${data.player2}/${data.selectedOption}`
       );
     });
+    socket.on("selectedOptionChanged", (newSelectedOption) => {
+      setSelectedOption(newSelectedOption);
+    });
+
+    return () => {
+      socket.off("startGame");
+      socket.off("selectedOptionChanged");
+    };
   }, []);
+
+  useEffect(() => {
+    socket.emit("selectedOptionChanged", { lobbyName, selectedOption });
+  }, [selectedOption]);
 
   useEffect(() => {
     if (player1 === activePlayer) {
@@ -47,7 +57,7 @@ function LobbyScreen() {
 
   const startGame = () => {
     const data = {
-      lobbyId,
+      lobbyName,
       player1,
       player2,
       selectedOption,

@@ -1,17 +1,19 @@
 import React from "react";
 import { useAtom } from "jotai";
-import { activeLobbiesAtom, activePlayerAtom } from "../components/states";
+import {
+  activeLobbiesAtom,
+  activePlayerAtom,
+  socketAtom,
+} from "../components/states";
 import CreateLobby from "../components/CreateLobby";
-import io from "socket.io-client";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-
-const socket = io("http://localhost:3000");
 
 function StartScreen() {
   const navigate = useNavigate();
   const [activePlayer] = useAtom(activePlayerAtom);
   const [activeLobbies, setActiveLobbies] = useAtom(activeLobbiesAtom);
+  const [socket] = useAtom(socketAtom);
 
   useEffect(() => {
     socket.on("activeLobbies", (lobbies) => {

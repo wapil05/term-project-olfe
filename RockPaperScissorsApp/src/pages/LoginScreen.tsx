@@ -1,14 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import io from "socket.io-client";
 import { useAtom } from "jotai";
-import { userAtom, activePlayerAtom } from "../components/states";
-
-const socket = io("http://localhost:3000");
-
-socket.on("connect", () => {
-  console.log("connected");
-});
+import { userAtom, activePlayerAtom, socketAtom } from "../components/states";
 
 function LoginScreen() {
   const [loginData, setLoginData] = useState({
@@ -18,12 +11,15 @@ function LoginScreen() {
   const [loginError, setLoginError] = useState<string | null>(null);
   const [user, setUser] = useAtom(userAtom);
   const [, setActivePlayer] = useAtom(activePlayerAtom);
+  const [socket] = useAtom(socketAtom);
 
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     socket.emit("login", loginData);
+
     setActivePlayer(user.name);
     console.log("Logging in user " + user.name);
   };

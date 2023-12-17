@@ -28,6 +28,7 @@ const io = new Server(server, {
 
 // Haltet die Liste der aktiven Lobbys im Server-Speicher
 let activeLobbies = [];
+let activeRooms = new Set();
 
 io.on("connection", (socket) => {
   console.log("user connected " + socket.id);
@@ -35,8 +36,12 @@ io.on("connection", (socket) => {
   socket.emit("activeLobbies", activeLobbies);
 
   socket.on("createLobby", (lobby) => {
-    socket.join(lobby.name); // Join the room with the lobby name
-    console.log("Received createLobby event:", lobby.name);
+    let trimmedLobbyName = lobby.name.trim();
+    socket.join(trimmedLobbyName);
+    console.log(`Client ${socket.id} created room ${trimmedLobbyName}`);
+    activeRooms.add(trimmedLobbyName);
+    console.log(activeRooms);
+    console.log("Received createLobby event:", trimmedLobbyName);
 
     activeLobbies.push(lobby);
 
@@ -60,15 +65,17 @@ io.on("connection", (socket) => {
       lobby.player2 = player2;
       io.emit("activeLobbies", activeLobbies);
       socket.join(lobbyName);
-      console.log("Player 2 joined lobby: ", lobbyName);
-      io.to(lobbyName).emit("playerJoined", player2);
+      console.log(`Client ${socket.id} joined room ${lobbyName}`);
     }
   });
 
   socket.on("startGameRequest", (data) => {
-    console.log("data: ", data);
-    io.to(data.lobbyId).emit("startGame", data);
-    console.log("start event emitted");
+    console.log("Lobby Name: ", data.lobbyName);
+    // io.emit("startGame", data);
+    io.to(data.lobbyName).emit("startGame", data);
+    console.log(activeRooms);
+    //socket.emit("startGame", data);
+    // console.log("start event emitted");
   });
 
   socket.on("register", async (user) => {
@@ -137,8 +144,21 @@ io.on("connection", (socket) => {
     }
   });
 
+  socket.on("selectedOptionChanged", (data) => {
+    socket
+      .to(data.lobbyName)
+      .emit("selectedOptionChanged", data.selectedOption);
+    console.log(
+      "selectedOptionChanged event emitted " + data.selectedOption,
+      data.lobbyName
+    );
+  });
+
   socket.on("disconnect", () => {
     console.log("user disconnected " + socket.id);
+    for (const room of socket.rooms) {
+      activeRooms.delete(room);
+    }
   });
 });
 

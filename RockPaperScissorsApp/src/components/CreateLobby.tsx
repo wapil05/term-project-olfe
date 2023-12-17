@@ -6,10 +6,8 @@ import {
   waitingForSecondPlayerAtom,
   activeLobbiesAtom,
   activePlayerAtom,
+  socketAtom,
 } from "../components/states";
-import io from "socket.io-client";
-
-const socket = io("http://localhost:3000");
 
 const CreateLobby: React.FC = () => {
   const [lobbyName, setLobbyName] = useAtom(lobbyNameAtom);
@@ -17,12 +15,18 @@ const CreateLobby: React.FC = () => {
   const [activeLobbies, setActiveLobbies] = useAtom(activeLobbiesAtom);
   const [activePlayer] = useAtom(activePlayerAtom);
   const [error, setError] = useState<string | null>(null);
+  const [socket] = useAtom(socketAtom);
 
   const handleCreateLobby = () => {
     const generatedLobbyName = lobbyName;
 
     if (!activePlayer) {
       setError("You need to login first.");
+      return;
+    }
+
+    if (!generatedLobbyName) {
+      setError("Lobby name cannot be empty.");
       return;
     }
 
@@ -48,7 +52,6 @@ const CreateLobby: React.FC = () => {
     setWaitingForSecondPlayer(true);
     setError(null);
 
-    // Emit a Socket.io event to inform the server about the new lobby
     socket.emit("createLobby", newLobby);
   };
 
