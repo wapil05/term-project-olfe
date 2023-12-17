@@ -13,6 +13,7 @@ function LobbyScreen() {
   const [selectedOption, setSelectedOption] = useState("");
   const [isCreator, setisCreator] = useState(false);
   const [socket] = useAtom(socketAtom);
+  const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
     socket.on("startGame", (data) => {
@@ -24,10 +25,22 @@ function LobbyScreen() {
     socket.on("selectedOptionChanged", (newSelectedOption) => {
       setSelectedOption(newSelectedOption);
     });
+    socket.on("player2Ready", (isReady) => {
+      setIsReady(isReady);
+    });
+    socket.on("connect", () => {
+      console.log("Connected to server");
+    });
+
+    socket.on("disconnect", () => {
+      console.log("Disconnected from server");
+    });
 
     return () => {
       socket.off("startGame");
       socket.off("selectedOptionChanged");
+      socket.off("connect");
+      socket.off("disconnect");
     };
   }, []);
 
@@ -41,15 +54,7 @@ function LobbyScreen() {
     }
   }, [player1]);
 
-  useEffect(() => {
-    socket.on("connect", () => {
-      console.log("Connected to server");
-    });
-
-    socket.on("disconnect", () => {
-      console.log("Disconnected from server");
-    });
-  }, []);
+  useEffect(() => {}, [isReady]);
 
   const handleOptionSelect = (option: string) => {
     setSelectedOption(option);
@@ -64,10 +69,19 @@ function LobbyScreen() {
     };
 
     console.log("Starting game");
-
     socket.emit("startGameRequest", data);
     console.log("startGameRequest event emitted", data);
   };
+
+  const handleReadyClick = () => {
+    setIsReady(!isReady);
+    socket.emit("player2Ready", { lobbyName, isReady: !isReady });
+  };
+
+  useEffect(() => {
+    console.log("selectedOption:", selectedOption);
+    console.log("isReady:", isReady);
+  }, [selectedOption, isReady]);
 
   return (
     <div className="flex items-center justify-center h-screen">
@@ -93,6 +107,7 @@ function LobbyScreen() {
               checked={selectedOption === "Best of 3"}
               onChange={() => handleOptionSelect("Best of 3")}
               className="mr-2"
+              disabled={!isCreator}
             />
             Best of 3
           </label>
@@ -103,6 +118,7 @@ function LobbyScreen() {
               checked={selectedOption === "Best of 4"}
               onChange={() => handleOptionSelect("Best of 4")}
               className="mr-2"
+              disabled={!isCreator}
             />
             Best of 4
           </label>
@@ -113,6 +129,7 @@ function LobbyScreen() {
               checked={selectedOption === "Best of 5"}
               onChange={() => handleOptionSelect("Best of 5")}
               className="mr-2"
+              disabled={!isCreator}
             />
             Best of 5
           </label>
@@ -124,15 +141,27 @@ function LobbyScreen() {
             und die Anzahl der Siege wählen.
           </p>
         </div>
-        <button
-          className={`bg-green-500 text-white px-6 py-3 rounded cursor-pointer ${
-            !selectedOption || !isCreator ? "bg-red-500" : ""
-          }`}
-          onClick={startGame}
-          disabled={!selectedOption || !isCreator}
-        >
-          Spiel starten
-        </button>
+        {player1 === activePlayer && (
+          <button
+            className={`text-white px-6 py-3 rounded cursor-pointer ${
+              !selectedOption || !isReady ? "bg-red-500" : "bg-green-500"
+            }`}
+            onClick={startGame}
+            disabled={!selectedOption || !isReady}
+          >
+            Spiel starten
+          </button>
+        )}
+        {player2 === activePlayer && (
+          <button
+            className={` text-white px-6 py-3 rounded cursor-pointer ${
+              !isReady ? "bg-red-500" : "bg-green-500"
+            }`}
+            onClick={handleReadyClick}
+          >
+            {!isReady ? "Not Ready" : "Ready"}
+          </button>
+        )}
       </div>
     </div>
   );

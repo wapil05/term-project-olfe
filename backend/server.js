@@ -120,6 +120,11 @@ io.on("connection", (socket) => {
     }
   });
 
+  socket.on("readyClicked", (lobbyName) => {
+    console.log("Received readyClicked event:", lobbyName);
+    socket.to(lobbyName).emit("readyClicked");
+  });
+
   socket.on("login", async (loginData) => {
     try {
       const user = await getDataForLogin(loginData.name, loginData.password);
@@ -142,6 +147,10 @@ io.on("connection", (socket) => {
     } catch (error) {
       return socket.emit("loginError", { message: error.message });
     }
+  });
+
+  socket.on("player2Ready", ({ lobbyName, isReady }) => {
+    socket.to(lobbyName).emit("player2Ready", isReady);
   });
 
   socket.on("selectedOptionChanged", (data) => {
