@@ -127,7 +127,10 @@ io.on("connection", (socket) => {
 
   socket.on("login", async (loginData) => {
     try {
-      const user = await getDataForLogin(loginData.name, loginData.password);
+      const user = await getDataForLogin(
+        loginData.username,
+        loginData.password
+      );
 
       bcrypt.compare(loginData.password, user.password, (err, result) => {
         if (err) {

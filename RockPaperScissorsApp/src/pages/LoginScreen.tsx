@@ -2,26 +2,31 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAtom } from "jotai";
 import { userAtom, activePlayerAtom, socketAtom } from "../components/states";
+import { useForm } from "react-hook-form";
 
 function LoginScreen() {
-  const [loginData, setLoginData] = useState({
-    name: "",
-    password: "",
-  });
   const [loginError, setLoginError] = useState<string | null>(null);
   const [user, setUser] = useAtom(userAtom);
   const [, setActivePlayer] = useAtom(activePlayerAtom);
   const [socket] = useAtom(socketAtom);
 
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({ defaultValues: { username: "", password: "" } });
+
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = (data: any) => {
+    //e.preventDefault();
 
-    socket.emit("login", loginData);
+    console.log("Login data:", data);
+    setUser(data.username);
+    socket.emit("login", data);
 
-    setActivePlayer(user.name);
-    console.log("Logging in user " + user.name);
+    setActivePlayer(data.username);
+    console.log("Logging in user " + data.username);
   };
 
   useEffect(() => {
@@ -51,30 +56,28 @@ function LoginScreen() {
     };
   }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setUser({ ...user, [e.target.name]: e.target.value });
-    setLoginData({ ...loginData, [e.target.name]: e.target.value });
-  };
-
   return (
     <div className="flex items-center justify-center h-screen">
       <div className="login-container p-8 border border-gray-300 rounded shadow-md text-center">
         <h2 className="text-2xl font-bold mb-6">Login</h2>
-        <form className="login-form" onSubmit={handleSubmit}>
+        <form className="login-form" onSubmit={handleSubmit(onSubmit)}>
           <div className="mb-4">
             <label htmlFor="usernameOrEmail" className="block font-semibold">
               Username:
             </label>
             <input
               type="text"
-              id="name"
-              name="name"
-              value={loginData.name}
-              onChange={handleChange}
+              id="username"
               className="border border-gray-300 rounded px-3 py-2 w-full placeholder-gray-500 text-xs"
               placeholder="Enter your username"
-              required
+              {...register("username", {
+                required: {
+                  value: true,
+                  message: "Username is required",
+                },
+              })}
             />
+            <p className="text-red-500 mt-2">{errors.username?.message}</p>
           </div>
           <div className="mb-4">
             <label htmlFor="password" className="block font-semibold">
@@ -83,13 +86,16 @@ function LoginScreen() {
             <input
               type="password"
               id="password"
-              name="password"
-              value={loginData.password}
-              onChange={handleChange}
               className="border border-gray-300 rounded px-3 py-2 w-full placeholder-gray-500 text-xs"
               placeholder="Enter your password"
-              required
+              {...register("password", {
+                required: {
+                  value: true,
+                  message: "Password is required",
+                },
+              })}
             />
+            <p className="text-red-500 mt-2">{errors.password?.message}</p>
           </div>
           <button
             type="submit"
