@@ -13,7 +13,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "20"
 
       - name: Install Dependencies
         run: yarn --frozen-lockfile
@@ -23,5 +23,5 @@ jobs:
         working-directory: ${{ github.workspace }}
 
       - name: Backend Linting
-        run: cd backend && yarn lint
+        run: cd backend && yarn && yarn lint
         working-directory: ${{ github.workspace }}
