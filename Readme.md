@@ -3,4 +3,14 @@
 
 ## How to run the project
 
-_ Make sure you outline all required steps that are needed to run this project_
+```bash
+cd backend
+yarn
+yarn dev
+```
+
+```bash
+cd RockPaperScissorsApp
+yarn 
+yarn dev
+```
