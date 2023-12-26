@@ -19,7 +19,7 @@ jobs:
         run: yarn --frozen-lockfile
 
       - name: Frontend Linting
-        run: cd RockPaperScissorsApp && yarn lint
+        run: cd RockPaperScissorsApp && yarn && yarn lint
         working-directory: ${{ github.workspace }}
 
       - name: Backend Linting
