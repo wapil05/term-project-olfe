@@ -10,6 +10,9 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - name: Change Directory to RockPaperScissorsApp
+        run: cd RockPaperScissorsApp
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
@@ -21,5 +24,19 @@ jobs:
       - name: Frontend Linting
         run: yarn lint --prefix RockPaperScissorsApp
 
+      - name: Change Directory to the root
+        run: cd ..
+
+      - name: Change Directory to backend
+        run: cd backend
+
+      - name: Setup Node.js for Backend
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Backend Dependencies
+        run: yarn --frozen-lockfile
+
       - name: Backend Linting
-        run: yarn lint --prefix backend
+        run: yarn lint
