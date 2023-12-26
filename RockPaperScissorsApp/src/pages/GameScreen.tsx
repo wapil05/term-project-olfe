@@ -20,7 +20,7 @@ function GameScreen() {
 
   const symbols = ["Schere", "Stein", "Papier"];
 
-  const handleSymbolClick = (symbol: any) => {
+  const handleSymbolClick = (symbol: string) => {
     if (!isTimerActive) return;
     setSelectedSymbol(symbol);
   };
