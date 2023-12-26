@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 
 function LoginScreen() {
   const [loginError, setLoginError] = useState<string | null>(null);
-  const [user, setUser] = useAtom(userAtom);
+  const [, setUser] = useAtom(userAtom);
   const [, setActivePlayer] = useAtom(activePlayerAtom);
   const [socket] = useAtom(socketAtom);
 
@@ -18,7 +18,7 @@ function LoginScreen() {
 
   const navigate = useNavigate();
 
-  const onSubmit = (data: any) => {
+  const onSubmit = (data) => {
     //e.preventDefault();
 
     console.log("Login data:", data);
