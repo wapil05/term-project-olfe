@@ -22,7 +22,6 @@
     "sqlite3": "^5.1.6"
   },
   "devDependencies": {
-    "eslint": "^8.45.0",
-    "eslint-plugin-react": "^7.33.2"
+    "eslint": "^8.45.0"
   }
 }
