@@ -81,24 +81,24 @@ io.on("connection", (socket) => {
   socket.on("register", async (user) => {
     //console.log("Received register event:", user);
 
-    if (!user.name || !user.email || !user.password) {
+    if (!user.username || !user.email || !user.password) {
       return socket.emit("registerError", {
         message: "Please fill in all fields!",
       });
     }
 
     try {
-      const existingUser = await getDataForRegistration(user.name, user.email);
+      const existingUser = await getDataForRegistration(user.username, user.email);
 
       if (existingUser) {
         if (
-          existingUser.name === user.name &&
+          existingUser.name === user.username &&
           existingUser.email === user.email
         ) {
           return socket.emit("registerError", {
             message: "Username and email already in use!",
           });
-        } else if (existingUser.name === user.name) {
+        } else if (existingUser.name === user.username) {
           return socket.emit("registerError", {
             message: "Username already in use!",
           });
@@ -110,7 +110,7 @@ io.on("connection", (socket) => {
       }
 
       // Hinzufügen des neuen Benutzers
-      const userId = await addUser(user.name, user.email, user.password);
+      const userId = await addUser(user.username, user.email, user.password);
       // Setze die Benutzer-ID für diesen Socket
       socket.currentUserId = userId;
       socket.emit("registerSuccess", { userId });
