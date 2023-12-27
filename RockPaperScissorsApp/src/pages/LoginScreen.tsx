@@ -18,7 +18,7 @@ function LoginScreen() {
 
   const navigate = useNavigate();
 
-  const onSubmit = (data:any) => {
+  const onSubmit = (data) => {
     //e.preventDefault();
 
     console.log("Login data:", data);
