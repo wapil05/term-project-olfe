@@ -59,7 +59,7 @@ function RegisterScreen() {
     }
   }, [registrationSuccess, navigate]);
 
-  const onSubmit = (data:any) => {
+  const onSubmit = (data) => {
     console.log("Register data:", data);
     setUser(data.username);
     socket.emit("register", data);
