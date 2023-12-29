@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAtom } from "jotai";
-import { userAtom, activePlayerAtom, socketAtom } from "../components/states";
+import { activePlayerAtom, socketAtom } from "../components/states";
 import { useForm } from "react-hook-form";
+
+interface FormData {
+  username: string;
+  password: string;
+}
 
 function LoginScreen() {
   const [loginError, setLoginError] = useState<string | null>(null);
-  const [, setUser] = useAtom(userAtom);
   const [, setActivePlayer] = useAtom(activePlayerAtom);
   const [socket] = useAtom(socketAtom);
 
@@ -18,11 +22,10 @@ function LoginScreen() {
 
   const navigate = useNavigate();
 
-  const onSubmit = (data) => {
+  const onSubmit = (data: FormData) => {
     //e.preventDefault();
 
     console.log("Login data:", data);
-    setUser(data.username);
     socket.emit("login", data);
 
     setActivePlayer(data.username);

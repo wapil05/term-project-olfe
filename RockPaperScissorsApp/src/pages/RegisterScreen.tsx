@@ -3,18 +3,17 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import io from "socket.io-client";
 import { useAtom } from "jotai";
-import { userAtom } from "../components/states";
 import { activePlayerAtom } from "../components/states";
 import { useForm } from "react-hook-form";
 
 const socket = io("http://localhost:3000");
 
-socket.on("connect", () => {
-  console.log("connected");
-});
+interface FormData {
+  username: string;
+  password: string;
+}
 
 function RegisterScreen() {
-  const [user, setUser] = useAtom(userAtom);
   const [, setActivePlayer] = useAtom(activePlayerAtom);
   const [registrationError, setRegistrationError] = useState<string | null>(
     null
@@ -24,7 +23,11 @@ function RegisterScreen() {
   } | null>(null);
   const navigate = useNavigate();
 
-  const {register, handleSubmit, formState: {errors}} = useForm({defaultValues: {username: "",email: "", password: ""}});
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({ defaultValues: { username: "", email: "", password: "" } });
 
   useEffect(() => {
     const handleRegisterError = (error: { message: string }) => {
@@ -54,17 +57,16 @@ function RegisterScreen() {
   useEffect(() => {
     if (registrationSuccess) {
       console.log("Registration successful. Redirecting to /home");
-      setActivePlayer(user.name);
       navigate("/home");
     }
   }, [registrationSuccess, navigate]);
 
-  const onSubmit = (data) => {
+  const onSubmit = (data: FormData) => {
     console.log("Register data:", data);
-    setUser(data.username);
+    setActivePlayer(data.username);
     socket.emit("register", data);
     console.log("Registering user " + data.username);
-  }
+  };
 
   return (
     <div className="flex items-center justify-center h-screen">
@@ -105,7 +107,8 @@ function RegisterScreen() {
                 },
                 pattern: {
                   value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                  message: "Please enter a valid email address (e.g., example@example.com)",
+                  message:
+                    "Please enter a valid email address (e.g., example@example.com)",
                 },
               })}
             />
@@ -145,6 +148,7 @@ function RegisterScreen() {
             Register
           </button>
         </form>
+<<<<<<< Updated upstream
         {registrationError && (<p className="text-red-500 mt-2">{registrationError}</p>)}
         <div className="mt-4 text-center border border-gray-300 rounded p-4">
           <p className="text-xs text-blue-500" style={{ fontSize: '10px' }}>Are you already registered?</p>
@@ -152,6 +156,11 @@ function RegisterScreen() {
             Login
           </Link>
         </div>
+=======
+        {registrationError && (
+          <p className="text-red-500 mt-2">{registrationError}</p>
+        )}
+>>>>>>> Stashed changes
       </div>
     </div>
   );

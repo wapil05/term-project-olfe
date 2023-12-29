@@ -28,9 +28,3 @@ export const lobbyAtom = atom<{
   player1: string;
   player2: string;
 } | null>(null);
-
-export const userAtom = atomWithStorage("user", {
-  name: "",
-  email: "",
-  password: "",
-});
