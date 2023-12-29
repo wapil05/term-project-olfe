@@ -78,7 +78,7 @@ function RegisterScreen() {
             <input
               type="text"
               id="name"
-              className="border border-gray-300 rounded px-3 py-2 w-full placeholder-gray-500 text-xs"
+              className="border border-gray-300 rounded px-3 py-2 w-80 placeholder-gray-500 text-xs"
               placeholder="Enter your name"
               {...register("username", {
                 required: {
@@ -87,7 +87,7 @@ function RegisterScreen() {
                 },
               })}
             />
-            <p className="text-red-500 mt-2">{errors.username?.message}</p>
+            <p className="text-red-500 text-xs mt-1" style={{ maxWidth: '300px', marginLeft: 'auto', marginRight: 'auto' }}>{errors.username?.message}</p>
           </div>
           <div className="mb-4">
             <label htmlFor="email" className="block font-semibold">
@@ -96,7 +96,7 @@ function RegisterScreen() {
             <input
               type="email"
               id="email"
-              className="border border-gray-300 rounded px-3 py-2 w-full placeholder-gray-500 text-xs"
+              className="border border-gray-300 rounded px-3 py-2 w-80 placeholder-gray-500 text-xs"
               placeholder="Enter your email"
               {...register("email", {
                 required: {
@@ -109,7 +109,7 @@ function RegisterScreen() {
                 },
               })}
             />
-            <p className="text-red-500 mt-2">{errors.email?.message}</p>
+            <p className="text-red-500 text-xs mt-1" style={{ maxWidth: '300px', marginLeft: 'auto', marginRight: 'auto' }}>{errors.email?.message}</p>
           </div>
           <div className="mb-4">
             <label htmlFor="password" className="block font-semibold">
@@ -118,7 +118,7 @@ function RegisterScreen() {
             <input
               type="password"
               id="password"
-              className="border border-gray-300 rounded px-3 py-2 w-full placeholder-gray-500 text-xs"
+              className="border border-gray-300 rounded px-3 py-2 w-80 placeholder-gray-500 text-xs"
               placeholder="Enter your password"
               {...register("password", {
                 required: {
@@ -136,7 +136,7 @@ function RegisterScreen() {
                 },
               })}
             />
-            <p className="text-red-500 mt-2">{errors.password?.message}</p>
+            <p className="text-red-500 text-xs mt-1" style={{ maxWidth: '300px', marginLeft: 'auto', marginRight: 'auto' }}>{errors.password?.message}</p>
           </div>
           <button
             type="submit"
@@ -146,10 +146,13 @@ function RegisterScreen() {
           </button>
         </form>
         {registrationError && (<p className="text-red-500 mt-2">{registrationError}</p>)}
+        <div className="mt-4 text-center border border-gray-300 rounded p-4">
+          <p className="text-xs text-blue-500" style={{ fontSize: '10px' }}>Are you already registered?</p>
+          <Link to="/login" className="inline-block bg-blue-500 text-white px-2 py-1 rounded transition duration-300 hover:bg-blue-700">
+            Login
+          </Link>
+        </div>
       </div>
-      <Link to="/login" className="text-blue-500 mt-4">
-        Login
-      </Link>
     </div>
   );
 }

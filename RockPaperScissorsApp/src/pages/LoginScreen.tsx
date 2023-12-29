@@ -46,7 +46,9 @@ function LoginScreen() {
   useEffect(() => {
     const handleLoginError = (error: { message: string }) => {
       console.error("Login Error:", error.message);
-      setLoginError(error.message);
+      // Eigene Fehlermeldung, wenn der Benutzername oder das Passwort falsch ist bzw. Nutzer nicht existiert
+      const customMessage = "E-Mail oder Passwort ist falsch!";
+      setLoginError(customMessage);
     };
 
     socket.on("loginError", handleLoginError);
@@ -68,7 +70,7 @@ function LoginScreen() {
             <input
               type="text"
               id="username"
-              className="border border-gray-300 rounded px-3 py-2 w-full placeholder-gray-500 text-xs"
+              className="border border-gray-300 rounded px-3 py-2 w-80 placeholder-gray-500 text-xs"
               placeholder="Enter your username"
               {...register("username", {
                 required: {
@@ -77,7 +79,7 @@ function LoginScreen() {
                 },
               })}
             />
-            <p className="text-red-500 mt-2">{errors.username?.message}</p>
+            <p className="text-red-500 text-xs mt-1" style={{ maxWidth: '300px', marginLeft: 'auto', marginRight: 'auto' }}>{errors.username?.message}</p>
           </div>
           <div className="mb-4">
             <label htmlFor="password" className="block font-semibold">
@@ -86,7 +88,7 @@ function LoginScreen() {
             <input
               type="password"
               id="password"
-              className="border border-gray-300 rounded px-3 py-2 w-full placeholder-gray-500 text-xs"
+              className="border border-gray-300 rounded px-3 py-2 w-80 placeholder-gray-500 text-xs"
               placeholder="Enter your password"
               {...register("password", {
                 required: {
@@ -95,7 +97,7 @@ function LoginScreen() {
                 },
               })}
             />
-            <p className="text-red-500 mt-2">{errors.password?.message}</p>
+            <p className="text-red-500 text-xs mt-1" style={{ maxWidth: '300px', marginLeft: 'auto', marginRight: 'auto' }}>{errors.password?.message}</p>
           </div>
           <button
             type="submit"
