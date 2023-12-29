@@ -89,7 +89,16 @@ function RegisterScreen() {
                 },
               })}
             />
-            <p className="text-red-500 text-xs mt-1" style={{ maxWidth: '300px', marginLeft: 'auto', marginRight: 'auto' }}>{errors.username?.message}</p>
+            <p
+              className="text-red-500 text-xs mt-1"
+              style={{
+                maxWidth: "300px",
+                marginLeft: "auto",
+                marginRight: "auto",
+              }}
+            >
+              {errors.username?.message}
+            </p>
           </div>
           <div className="mb-4">
             <label htmlFor="email" className="block font-semibold">
@@ -112,7 +121,16 @@ function RegisterScreen() {
                 },
               })}
             />
-            <p className="text-red-500 text-xs mt-1" style={{ maxWidth: '300px', marginLeft: 'auto', marginRight: 'auto' }}>{errors.email?.message}</p>
+            <p
+              className="text-red-500 text-xs mt-1"
+              style={{
+                maxWidth: "300px",
+                marginLeft: "auto",
+                marginRight: "auto",
+              }}
+            >
+              {errors.email?.message}
+            </p>
           </div>
           <div className="mb-4">
             <label htmlFor="password" className="block font-semibold">
@@ -139,7 +157,16 @@ function RegisterScreen() {
                 },
               })}
             />
-            <p className="text-red-500 text-xs mt-1" style={{ maxWidth: '300px', marginLeft: 'auto', marginRight: 'auto' }}>{errors.password?.message}</p>
+            <p
+              className="text-red-500 text-xs mt-1"
+              style={{
+                maxWidth: "300px",
+                marginLeft: "auto",
+                marginRight: "auto",
+              }}
+            >
+              {errors.password?.message}
+            </p>
           </div>
           <button
             type="submit"
@@ -148,19 +175,20 @@ function RegisterScreen() {
             Register
           </button>
         </form>
-<<<<<<< Updated upstream
-        {registrationError && (<p className="text-red-500 mt-2">{registrationError}</p>)}
-        <div className="mt-4 text-center border border-gray-300 rounded p-4">
-          <p className="text-xs text-blue-500" style={{ fontSize: '10px' }}>Are you already registered?</p>
-          <Link to="/login" className="inline-block bg-blue-500 text-white px-2 py-1 rounded transition duration-300 hover:bg-blue-700">
-            Login
-          </Link>
-        </div>
-=======
         {registrationError && (
           <p className="text-red-500 mt-2">{registrationError}</p>
         )}
->>>>>>> Stashed changes
+        <div className="mt-4 text-center border border-gray-300 rounded p-4">
+          <p className="text-xs text-blue-500" style={{ fontSize: "10px" }}>
+            Are you already registered?
+          </p>
+          <Link
+            to="/login"
+            className="inline-block bg-blue-500 text-white px-2 py-1 rounded transition duration-300 hover:bg-blue-700"
+          >
+            Login
+          </Link>
+        </div>
       </div>
     </div>
   );
