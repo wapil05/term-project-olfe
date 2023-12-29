@@ -14,3 +14,8 @@ cd RockPaperScissorsApp
 yarn 
 yarn dev
 ```
+
+---
+
+Open localhost in two different browsers and register or login with two different accounts. 
+Now you should be able to create and join Lobbies and Play the game!
