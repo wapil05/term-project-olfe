@@ -86,8 +86,8 @@ function LobbyScreen() {
   return (
     <div className="flex items-center justify-center h-screen">
       <div className="border-4 border-gray-300 rounded-lg p-8 bg-gray-100 shadow-md">
-        <h2 className="text-3xl font-bold mb-4">Willkommen in der Lobby</h2>
-        <h3 className="text-xl mb-6">Bist du bereit zum Spielen?</h3>
+        <h2 className="text-3xl font-bold mb-4">Lobby</h2>
+        <h3 className="text-xl mb-6">Ready?</h3>
         <div className="flex justify-between mb-4">
           <button className="bg-blue-500 text-white px-4 py-2 rounded cursor-pointer">
             {player1}
@@ -135,10 +135,10 @@ function LobbyScreen() {
           </label>
         </div>
         <div className="bg-gray-200 rounded-lg p-4 mb-4">
-          <h3 className="text-lg mb-2">Achtung:</h3>
+          <h3 className="text-lg mb-2">!!!</h3>
           <p className="text-sm">
-            Nur der Spieler, der die Lobby erstellt hat, kann das Spiel starten
-            und die Anzahl der Siege wählen.
+            Only the creator of the lobby can select the number of rounds and
+            start the game.
           </p>
         </div>
         {player1 === activePlayer && (
@@ -149,7 +149,7 @@ function LobbyScreen() {
             onClick={startGame}
             disabled={!selectedOption || !isReady}
           >
-            Spiel starten
+            Start Game
           </button>
         )}
         {player2 === activePlayer && (

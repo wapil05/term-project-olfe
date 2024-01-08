@@ -88,7 +88,10 @@ io.on("connection", (socket) => {
     }
 
     try {
-      const existingUser = await getDataForRegistration(user.username, user.email);
+      const existingUser = await getDataForRegistration(
+        user.username,
+        user.email
+      );
 
       if (existingUser) {
         if (
