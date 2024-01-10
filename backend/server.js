@@ -10,6 +10,11 @@ const {
   getDataForRegistration,
   getDataForLogin,
   addUser,
+  addWin,
+  addLoss,
+  addRoundWin,
+  addRoundLoss,
+  addFlawlessVictory,
 } = require("./db/dbFunctions");
 
 const app = express();
@@ -178,3 +183,141 @@ const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
+
+
+// Routes zum Testen
+
+// Um einen Benutzer hinzuzufügen
+app.post("/addUser", async (req, res) => {
+  const { name, email, password, wins, losses, roundsWon, roundsLost, flawlessVictories } = req.body;
+
+  if (!name || !email || !password) {
+    return res
+      .status(400)
+      .json({ message: "Name, E-Mail und Passwort erforderlich" });
+  }
+
+  try {
+    const userId = await addUser(name, email, password, wins, losses, roundsWon, roundsLost, flawlessVictories);
+    res.json({ message: "Benutzer wurde hinzugefügt", userId });
+  } catch (error) {
+    res.status(500).json({ message: "Fehler beim Hinzufügen des Benutzers" });
+  }
+}
+);
+
+// Um sich zu registrieren
+app.post("/register", async (req, res) => {
+  const { name, email, password, wins, losses, roundsWon, roundsLost, flawlessVictories } = req.body;
+
+  if (!name || !email || !password) {
+    return res
+      .status(400)
+      .json({ message: "Username, E-Mail und Passwort erforderlich" });
+  }
+
+  try {
+    const userId = await addUser(name, email, password, wins, losses, roundsWon, roundsLost, flawlessVictories);
+    res.json({ message: "Benutzer wurde hinzugefügt", userId });
+  } catch (error) {
+    res.status(500).json({ message: "Fehler beim Hinzufügen des Benutzers" });
+  }
+}
+);
+
+// Route zum Erhöhen der Gewinne eines Benutzers
+app.post("/addWin/:userId", async (req, res) => {
+  const userId = req.params.userId;
+
+  if (!userId) {
+    return res.status(400).json({ message: "UserID erforderlich" });
+  }
+
+  try {
+    const result = await addWin(userId);
+    res.json({ message: "Wurde erfolgreich hinzugefügt" });
+  } catch (error) {
+    if (error.message === 'UserID nicht gefunden') {
+      return res.status(404).json({ message: 'UserID nicht gefunden' });
+    }
+    res.status(500).json({ message: "Fehler beim Hinzufügen" });
+  }
+});
+
+// Route zum Erhöhen der Verluste eines Benutzers
+app.post("/addLoss/:userId", async (req, res) => {
+  const userId = req.params.userId;
+
+  if (!userId) {
+    return res.status(400).json({ message: "UserID erforderlich" });
+  }
+
+  try {
+    const result = await addLoss(userId);
+    res.json({ message: "Wurde erfolgreich hinzugefügt" });
+  } catch (error) {
+    if (error.message === 'UserID nicht gefunden') {
+      return res.status(404).json({ message: 'UserID nicht gefunden' });
+    }
+    res.status(500).json({ message: "Fehler beim Hinzufügen" });
+  }
+});
+
+// Route zum Erhöhen eines Sieges einer Runde (roundsWon) eines Benutzers
+app.post("/addRoundWin/:userId", async (req, res) => {
+  const userId = req.params.userId;
+
+  if (!userId) {
+    return res.status(400).json({ message: "UserID erforderlich" });
+  }
+
+  try {
+    const result = await addRoundWin(userId);
+    res.json({ message: "Wurde erfolgreich hinzugefügt" });
+  } catch (error) {
+    if (error.message === 'UserID nicht gefunden') {
+      return res.status(404).json({ message: 'UserID nicht gefunden' });
+    }
+    res.status(500).json({ message: "Fehler beim Hinzufügen" });
+  }
+});
+
+// Route zum Erhöhen eines verlorenen Spiels einer Runde (roundsLost) eines Benutzers
+app.post("/addRoundLoss/:userId", async (req, res) => {
+  const userId = req.params.userId;
+
+  if (!userId) {
+    return res.status(400).json({ message: "UserID erforderlich" });
+  }
+
+  try {
+    const result = await addRoundLoss(userId);
+    res.json({ message: "Wurde erfolgreich hinzugefügt" });
+  } catch (error) {
+    if (error.message === 'UserID nicht gefunden') {
+      return res.status(404).json({ message: 'UserID nicht gefunden' });
+    }
+    res.status(500).json({ message: "Fehler beim Hinzufügen" });
+  }
+});
+
+// Route zum Erhöhen von flawlessVictories von einem bestimmten Benutzer
+app.post("/addFlawlessVictory/:userId", async (req, res) => {
+  const userId = req.params.userId;
+
+  if (!userId) {
+    return res.status(400).json({ message: "UserID erforderlich" });
+  }
+
+  try {
+    const result = await addFlawlessVictory(userId);
+    res.json({ message: "Wurde erfolgreich hinzugefügt" });
+  } catch (error) {
+    if (error.message === 'UserID nicht gefunden') {
+      return res.status(404).json({ message: 'UserID nicht gefunden' });
+    }
+    res.status(500).json({ message: "Fehler beim Hinzufügen" });
+  }
+});
+
+

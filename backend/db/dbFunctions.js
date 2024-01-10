@@ -1,37 +1,46 @@
 const sqlite3 = require("sqlite3").verbose(); // Importiere die sqlite3-Bibliothek
 const bcrypt = require("bcrypt"); // Importiere die bcrypt-Bibliothek
+const dbPath = "./db/olfe.db";  // Pfad zur Datenbank
 
-const dbPath = "./db/olfe.db";
 
-// Funktion zum Initialisieren der Datenbanken ... also der Tabellen (user, history)
+// Funktion zum Initialisieren der Datenbanken user
 async function initializeDatabase() {
   return new Promise((resolve, reject) => {
     const db = new sqlite3.Database(dbPath);
 
-    db.run(
-      `CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, email TEXT, password TEXT)`,
-      (err) => {
+    db.serialize(() => {
+      db.run(`
+        CREATE TABLE IF NOT EXISTS user (
+          id INTEGER PRIMARY KEY AUTOINCREMENT, 
+          name TEXT, 
+          email TEXT, 
+          password TEXT,
+          wins INTEGER DEFAULT 0,
+          losses INTEGER DEFAULT 0,
+          roundsWon INTEGER DEFAULT 0,
+          roundsLost INTEGER DEFAULT 0,
+          flawlessVictories INTEGER DEFAULT 0
+        )
+      `, (err) => {
         if (err) {
           reject(err);
         } else {
-          resolve(); // Resolve, nachdem die user-Tabelle erstellt wurde
+          resolve(); // Resolve, nachdem die Tabelle erstellt wurde
         }
-        db.close();
-      }
-    );
+      });
+    });
   });
 }
 
 
 
-// Funktion zum Hinzufügen eines Benutzers
 async function addUser(name, email, password) {
   return new Promise(async (resolve, reject) => {
     try {
       await initializeDatabase();
       const db = new sqlite3.Database(dbPath);
 
-      // Hashen des Passworts
+      // Hashen des Passworts mit bcrypt
       bcrypt.hash(password, 10, function (err, hash) {
         if (err) {
           reject(err);
@@ -55,6 +64,7 @@ async function addUser(name, email, password) {
     }
   });
 }
+
 
 
 // Funktion zum Abrufen aller Benutzer
@@ -94,9 +104,6 @@ async function deleteUser(userId) {
     }
   });
 }
-
-
-
 
 
 // Funktion zum Abrufen der Daten eines Benutzers für den Login
@@ -149,6 +156,157 @@ async function getDataForRegistration(name, email) {
 }
 
 
+// Funktion zum Hinzufügen eines Gewinns für einen Benutzer
+async function addWin(userId) {
+  return new Promise((resolve, reject) => {
+    const db = new sqlite3.Database(dbPath);
+
+    // Überprüfung, ob die UserID vorhanden ist, bevor der Updatevorgang ausgeführt wird
+    const getUserQuery = 'SELECT * FROM user WHERE id = ?';
+    db.get(getUserQuery, [userId], (err, row) => {
+      if (err) {
+        reject(err);
+      } else {
+        if (!row) {
+          return reject({ message: 'UserID nicht gefunden' });
+        }
+
+        // UserID vorhanden, führe den Updatevorgang aus
+        db.run("UPDATE user SET wins = wins + 1 WHERE id = ?", [userId], function (err) {
+          if (err) {
+            reject(err);
+          } else {
+            const updatedUserId = this.changes;
+            resolve({ updatedUserId });
+          }
+          db.close();
+        });
+      }
+    });
+  });
+}
+
+// Funktion zum Hinzufügen eines verlorenen Spiels für einen Benutzer
+async function addLoss(userId) {
+  return new Promise((resolve, reject) => {
+    const db = new sqlite3.Database(dbPath);
+
+    // Überprüfung, ob die UserID vorhanden ist, bevor der Updatevorgang ausgeführt wird
+    const getUserQuery = 'SELECT * FROM user WHERE id = ?';
+    db.get(getUserQuery, [userId], (err, row) => {
+      if (err) {
+        reject(err);
+      } else {
+        if (!row) {
+          return reject({ message: 'UserID nicht gefunden' });
+        }
+
+        // UserID vorhanden, führe den Updatevorgang aus
+        db.run("UPDATE user SET losses = losses + 1 WHERE id = ?", [userId], function (err) {
+          if (err) {
+            reject(err);
+          } else {
+            const updatedUserId = this.changes;
+            resolve({ updatedUserId });
+          }
+          db.close();
+        });
+      }
+    });
+  });
+}
+
+// Funktion zum Hinzufügen eines Sieges bei einer Runde für einen Benutzer (roundsWon)
+async function addRoundWin(userId) {
+  return new Promise((resolve, reject) => {
+    const db = new sqlite3.Database(dbPath);
+
+    // Überprüfung, ob die UserID vorhanden ist, bevor der Updatevorgang ausgeführt wird
+    const getUserQuery = 'SELECT * FROM user WHERE id = ?';
+    db.get(getUserQuery, [userId], (err, row) => {
+      if (err) {
+        reject(err);
+      } else {
+        if (!row) {
+          return reject({ message: 'UserID nicht gefunden' });
+        }
+
+        // UserID vorhanden, führe den Updatevorgang aus
+        db.run("UPDATE user SET roundsWon = roundsWon + 1 WHERE id = ?", [userId], function (err) {
+          if (err) {
+            reject(err);
+          } else {
+            const updatedUserId = this.changes;
+            resolve({ updatedUserId });
+          }
+          db.close();
+        });
+      }
+    });
+  });
+}
+
+// Funktion zum Hinzufügen eines verlorenen Spiels in einer Runde (roundsLost) für einen Benutzer
+async function addRoundLoss(userId) {
+  return new Promise((resolve, reject) => {
+    const db = new sqlite3.Database(dbPath);
+
+    // Überprüfung, ob die UserID vorhanden ist, bevor der Updatevorgang ausgeführt wird
+    const getUserQuery = 'SELECT * FROM user WHERE id = ?';
+    db.get(getUserQuery, [userId], (err, row) => {
+      if (err) {
+        reject(err);
+      } else {
+        if (!row) {
+          return reject({ message: 'UserID nicht gefunden' });
+        }
+
+        // UserID vorhanden, führe den Updatevorgang aus
+        db.run("UPDATE user SET roundsLost = roundsLost + 1 WHERE id = ?", [userId], function (err) {
+          if (err) {
+            reject(err);
+          } else {
+            const updatedUserId = this.changes;
+            resolve({ updatedUserId });
+          }
+          db.close();
+        });
+      }
+    });
+  });
+}
+
+// Funktion zum Hinzufügen eines flawlessVictories für einen Benutzer
+async function addFlawlessVictory(userId) {
+  return new Promise((resolve, reject) => {
+    const db = new sqlite3.Database(dbPath);
+
+    // Überprüfung, ob die UserID vorhanden ist, bevor der Updatevorgang ausgeführt wird
+    const getUserQuery = 'SELECT * FROM user WHERE id = ?';
+    db.get(getUserQuery, [userId], (err, row) => {
+      if (err) {
+        reject(err);
+      } else {
+        if (!row) {
+          return reject({ message: 'UserID nicht gefunden' });
+        }
+
+        // UserID vorhanden, führe den Updatevorgang aus
+        db.run("UPDATE user SET flawlessVictories = flawlessVictories + 1 WHERE id = ?", [userId], function (err) {
+          if (err) {
+            reject(err);
+          } else {
+            const updatedUserId = this.changes;
+            resolve({ updatedUserId });
+          }
+          db.close();
+        });
+      }
+    });
+  });
+}
+
+
 // Export der Funktionen
 module.exports = {
   addUser,
@@ -156,6 +314,11 @@ module.exports = {
   deleteUser,
   getDataForLogin,
   getDataForRegistration,
+  addWin,
+  addLoss,
+  addRoundWin,
+  addRoundLoss,
+  addFlawlessVictory
 };
 
 

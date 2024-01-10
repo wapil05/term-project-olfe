@@ -3,9 +3,9 @@ POST http://localhost:3000/addUser HTTP/1.1
 Content-Type: application/json
 
 {
-    "name": "User",
-    "email": "testuser2@example.com",
-    "password": "Password"
+    "name": "user1",
+    "email": "user1@test.com",
+    "password": "User1User1"
 }
 
 
@@ -36,5 +36,30 @@ Content-Type: application/json
     "email": "user123@example.com",
     "password": "DieAppistToll"
 }
+
+
+### Win wird bei bestimmten User um 1 erhöht
+POST  http://localhost:3000/addWin/2 HTTP/1.1
+Content-Type: application/json
+
+
+### Lose wird bei bestimmten User um 1 erhöht
+POST  http://localhost:3000/addLoss/2 HTTP/1.1
+Content-Type: application/json
+
+
+### Erhöht roundsWon bei bestimmten User um 1
+POST  http://localhost:3000/addRoundWin/2 HTTP/1.1
+Content-Type: application/json
+
+
+### Erhöht roundsLost bei bestimmten User um 1
+POST  http://localhost:3000/addRoundLoss/2 HTTP/1.1
+Content-Type: application/json
+
+
+### Erhöht flawlessVictories bei bestimmten User um 1
+POST  http://localhost:3000/addFlawlessVictory/2 HTTP/1.1
+Content-Type: application/json
 
 
