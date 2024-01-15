@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { useAtom } from "jotai";
 import { useParams } from "react-router-dom";
+import { activePlayerAtom, socketAtom } from "../components/states";
 
 function GameScreen() {
   const [selectedSymbol, setSelectedSymbol] = useState("");
-  const [timer, setTimer] = useState(10);
+  const [opponentSymbol, setOpponentSymbol] = useState("");
+  const [timer, setTimer] = useState(3);
   const [isTimerActive, setIsTimerActive] = useState(true);
-  const { player1, player2 } = useParams();
+  const { player1, player2, lobbyName, selectedOption } = useParams();
+  const [activePlayer] = useAtom(activePlayerAtom);
+  const [socket] = useAtom(socketAtom);
 
   useEffect(() => {
     const countdown = setInterval(() => {
@@ -39,7 +43,22 @@ function GameScreen() {
       setSelectedSymbol(randomSymbol);
       setIsTimerActive(false);
     }
+    console.log(selectedSymbol);
+
+    socket.emit("selectedSymbolChanged", {
+      lobbyName,
+      player: activePlayer,
+      selectedSymbol,
+    });
   }, [timer, selectedSymbol]);
+
+  useEffect(() => {
+    socket.on("selectedSymbolChanged", (data) => {
+      if (data.player !== activePlayer) {
+        setOpponentSymbol(data.selectedSymbol);
+      }
+    });
+  }, []);
 
   return (
     <div className="flex flex-col items-center justify-center h-screen border border-black bg-gray-100 p-2">
@@ -48,15 +67,21 @@ function GameScreen() {
       </div>
       <div className="flex justify-center mb-2">
         <div className="flex flex-col items-center mr-4">
-          <div className="bg-gray-200 rounded-lg p-2 mb-1">{player1}</div>
+          <div className="bg-gray-200 rounded-lg p-2 mb-1">{activePlayer}</div>
           <div className="bg-white rounded-lg p-4 text-2xl border border-gray-300">
             {selectedSymbol === "" ? "-" : selectedSymbol}
           </div>
         </div>
         <div className="flex flex-col items-center">
-          <div className="bg-gray-200 rounded-lg p-2 mb-1">{player2}</div>
+          <div className="bg-gray-200 rounded-lg p-2 mb-1">
+            {activePlayer === player2 ? player1 : player2}
+          </div>
           <div className="bg-gray-200 rounded-lg p-4 text-2xl border border-gray-300">
-            -
+            {timer === 0
+              ? opponentSymbol === ""
+                ? "-"
+                : opponentSymbol
+              : "Waiting..."}
           </div>
         </div>
       </div>

@@ -98,14 +98,14 @@ function LobbyScreen() {
         </div>
         <div className="mb-4">
           <h3 className="text-lg mb-2">
-            <span className="font-bold">{selectedOption}</span>
+            <span className="font-bold">First to win: {selectedOption}</span>
           </h3>
           <label className="block mb-2">
             <input
               type="radio"
-              value="Best of 3"
-              checked={selectedOption === "Best of 3"}
-              onChange={() => handleOptionSelect("Best of 3")}
+              value="2"
+              checked={selectedOption === "2"}
+              onChange={() => handleOptionSelect("2")}
               className="mr-2"
               disabled={!isCreator}
             />
@@ -114,24 +114,24 @@ function LobbyScreen() {
           <label className="block mb-2">
             <input
               type="radio"
-              value="Best of 4"
-              checked={selectedOption === "Best of 4"}
-              onChange={() => handleOptionSelect("Best of 4")}
-              className="mr-2"
-              disabled={!isCreator}
-            />
-            Best of 4
-          </label>
-          <label className="block">
-            <input
-              type="radio"
-              value="Best of 5"
-              checked={selectedOption === "Best of 5"}
-              onChange={() => handleOptionSelect("Best of 5")}
+              value="3"
+              checked={selectedOption === "3"}
+              onChange={() => handleOptionSelect("3")}
               className="mr-2"
               disabled={!isCreator}
             />
             Best of 5
+          </label>
+          <label className="block">
+            <input
+              type="radio"
+              value="4"
+              checked={selectedOption === "4"}
+              onChange={() => handleOptionSelect("4")}
+              className="mr-2"
+              disabled={!isCreator}
+            />
+            Best of 7
           </label>
         </div>
         <div className="bg-gray-200 rounded-lg p-4 mb-4">

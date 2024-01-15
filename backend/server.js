@@ -169,6 +169,16 @@ io.on("connection", (socket) => {
     );
   });
 
+  socket.on(
+    "selectedSymbolChanged",
+    ({ lobbyName, activePlayer, selectedSymbol }) => {
+      socket.to(lobbyName).emit("selectedSymbolChanged", {
+        activePlayer,
+        selectedSymbol,
+      });
+    }
+  );
+
   socket.on("disconnect", () => {
     console.log("user disconnected " + socket.id);
     for (const room of socket.rooms) {
