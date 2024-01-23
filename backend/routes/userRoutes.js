@@ -1,5 +1,4 @@
-const { addUser, getAllUsers, deleteUser, getDataForLogin, getDataForRegistration } = require("../db/dbFunctions");
-
+const { addUser, getAllUsers, deleteUser, getDataForLogin, getDataForRegistration, addWin, addLoss, addRoundWin, addRoundLoss, addFlawlessVictory } = require("../db/dbFunctions");
 const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
@@ -7,9 +6,8 @@ const socketIO = require('socket.io-client');
 const socket = socketIO('http://localhost:3000'); // Verbindung zum Socket-Server herstellen, anpassen, wenn nötig
 
 
-// Für das Hinzufügen eines neuen Users
 router.post("/addUser", async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, wins, losses, roundsWon, roundsLost, flawlessVictories } = req.body;
 
   if (!name || !email || !password) {
     return res
@@ -18,7 +16,7 @@ router.post("/addUser", async (req, res) => {
   }
 
   try {
-    const userId = await addUser(name, email, password);
+    const userId = await addUser(name, email, password, wins, losses, roundsWon, roundsLost, flawlessVictories);
     res.json({ message: "Benutzer wurde hinzugefügt", userId });
 
     // Sende ein Event an den Socket, um das Hinzufügen eines Benutzers zu signalisieren
@@ -131,6 +129,100 @@ router.post("/register", async (req, res) => {
 });
 
 
+// Route zum Erhöhen der Gewinne eines Benutzers
+app.post("/addWin/:userId", async (req, res) => {
+  const userId = req.params.userId;
+
+  if (!userId) {
+    return res.status(400).json({ message: "UserID erforderlich" });
+  }
+
+  try {
+    const result = await addWin(userId);
+    res.json({ message: "Wurde erfolgreich hinzugefügt" });
+  } catch (error) {
+    if (error.message === 'UserID nicht gefunden') {
+      return res.status(404).json({ message: 'UserID nicht gefunden' });
+    }
+    res.status(500).json({ message: "Fehler beim Hinzufügen" });
+  }
+});
+
+// Route zum Erhöhen der Verluste eines Benutzers
+app.post("/addLoss/:userId", async (req, res) => {
+  const userId = req.params.userId;
+
+  if (!userId) {
+    return res.status(400).json({ message: "UserID erforderlich" });
+  }
+
+  try {
+    const result = await addLoss(userId);
+    res.json({ message: "Wurde erfolgreich hinzugefügt" });
+  } catch (error) {
+    if (error.message === 'UserID nicht gefunden') {
+      return res.status(404).json({ message: 'UserID nicht gefunden' });
+    }
+    res.status(500).json({ message: "Fehler beim Hinzufügen" });
+  }
+});
+
+// Route zum Erhöhen eines Sieges einer Runde (roundsWon) eines Benutzers
+app.post("/addRoundWin/:userId", async (req, res) => {
+  const userId = req.params.userId;
+
+  if (!userId) {
+    return res.status(400).json({ message: "UserID erforderlich" });
+  }
+
+  try {
+    const result = await addRoundWin(userId);
+    res.json({ message: "Wurde erfolgreich hinzugefügt" });
+  } catch (error) {
+    if (error.message === 'UserID nicht gefunden') {
+      return res.status(404).json({ message: 'UserID nicht gefunden' });
+    }
+    res.status(500).json({ message: "Fehler beim Hinzufügen" });
+  }
+});
+
+// Route zum Erhöhen eines verlorenen Spiels einer Runde (roundsLost) eines Benutzers
+app.post("/addRoundLoss/:userId", async (req, res) => {
+  const userId = req.params.userId;
+
+  if (!userId) {
+    return res.status(400).json({ message: "UserID erforderlich" });
+  }
+
+  try {
+    const result = await addRoundLoss(userId);
+    res.json({ message: "Wurde erfolgreich hinzugefügt" });
+  } catch (error) {
+    if (error.message === 'UserID nicht gefunden') {
+      return res.status(404).json({ message: 'UserID nicht gefunden' });
+    }
+    res.status(500).json({ message: "Fehler beim Hinzufügen" });
+  }
+});
+
+// Route zum Erhöhen von flawlessVictories von einem bestimmten Benutzer
+app.post("/addFlawlessVictory/:userId", async (req, res) => {
+  const userId = req.params.userId;
+
+  if (!userId) {
+    return res.status(400).json({ message: "UserID erforderlich" });
+  }
+
+  try {
+    const result = await addFlawlessVictory(userId);
+    res.json({ message: "Wurde erfolgreich hinzugefügt" });
+  } catch (error) {
+    if (error.message === 'UserID nicht gefunden') {
+      return res.status(404).json({ message: 'UserID nicht gefunden' });
+    }
+    res.status(500).json({ message: "Fehler beim Hinzufügen" });
+  }
+});
 
 module.exports = router;
 
