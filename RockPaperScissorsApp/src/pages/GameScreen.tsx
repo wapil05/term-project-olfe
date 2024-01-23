@@ -8,6 +8,9 @@ function GameScreen() {
   const [opponentSymbol, setOpponentSymbol] = useState("");
   const [timer, setTimer] = useState(3);
   const [isTimerActive, setIsTimerActive] = useState(true);
+  const [score, setScore] = useState([0, 0]);
+  const [isReady, setIsReady] = useState(false);
+
   const { player1, player2, lobbyName, selectedOption } = useParams();
   const [activePlayer] = useAtom(activePlayerAtom);
   const [socket] = useAtom(socketAtom);
@@ -43,13 +46,14 @@ function GameScreen() {
       setSelectedSymbol(randomSymbol);
       setIsTimerActive(false);
     }
-    console.log(selectedSymbol);
 
-    socket.emit("selectedSymbolChanged", {
-      lobbyName,
-      player: activePlayer,
-      selectedSymbol,
-    });
+    if (timer === 0 && selectedSymbol) {
+      socket.emit("selectedSymbolChanged", {
+        lobbyName,
+        player: activePlayer,
+        selectedSymbol,
+      });
+    }
   }, [timer, selectedSymbol]);
 
   useEffect(() => {
@@ -58,12 +62,65 @@ function GameScreen() {
         setOpponentSymbol(data.selectedSymbol);
       }
     });
+    socket.on("startRound", () => {
+      setSelectedSymbol("");
+      setOpponentSymbol("");
+      setTimer(3);
+      setIsTimerActive(true);
+      setIsReady(false);
+    });
+    socket.on("gameOver", (data) => {
+      console.log(data);
+    });
   }, []);
+
+  useEffect(() => {
+    const winner = getWinner(selectedSymbol, opponentSymbol);
+
+    if (winner === player1) {
+      setScore((prevScore) => [prevScore[0] + 1, prevScore[1]]);
+    } else if (winner === player2) {
+      setScore((prevScore) => [prevScore[0], prevScore[1] + 1]);
+    }
+  }, [opponentSymbol]);
+
+  useEffect(() => {
+    if (activePlayer === player1) {
+      socket.emit("roundDone", {
+        lobbyName,
+        player1: activePlayer,
+        player2: player2,
+        score,
+        selectedOption,
+      });
+    }
+  }, [score]);
+
+  const getWinner = (player1Symbol: string, player2Symbol: string) => {
+    if (player1Symbol === player2Symbol) {
+      return "Draw";
+    } else if (
+      (player1Symbol === "Rock" && player2Symbol === "Scissors") ||
+      (player1Symbol === "Paper" && player2Symbol === "Rock") ||
+      (player1Symbol === "Scissors" && player2Symbol === "Paper")
+    ) {
+      return player1;
+    } else {
+      return player2;
+    }
+  };
+
+  const handleReadyClick = () => {
+    setIsReady(true);
+    socket.emit("playerReady", { lobbyName, player: activePlayer });
+  };
 
   return (
     <div className="flex flex-col items-center justify-center h-screen border border-black bg-gray-100 p-2">
       <div className="mb-2 bg-gray-300 rounded-md p-2">
-        <h1 className="text-4xl font-bold mb-1">Rock Paper Scissors</h1>
+        <h1 className="text-4xl font-bold mb-1">
+          {score[0]} : {score[1]}
+        </h1>
       </div>
       <div className="flex justify-center mb-2">
         <div className="flex flex-col items-center mr-4">
@@ -103,6 +160,15 @@ function GameScreen() {
           </button>
         ))}
       </div>
+      <button
+        onClick={handleReadyClick}
+        className={`px-4 py-2 rounded cursor-pointer mt-8 ${
+          isReady ? "bg-green-500" : "bg-red-500"
+        } text-white ${isTimerActive && "opacity-50 cursor-not-allowed"}`}
+        disabled={isTimerActive}
+      >
+        {isReady ? "Ready" : "Ready?"}
+      </button>
     </div>
   );
 }

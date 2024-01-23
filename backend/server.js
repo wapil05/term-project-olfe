@@ -26,31 +26,23 @@ const io = new Server(server, {
   },
 });
 
-// Haltet die Liste der aktiven Lobbys im Server-Speicher
 let activeLobbies = [];
 let activeRooms = new Set();
+let readyPlayers = {};
 
 io.on("connection", (socket) => {
-  console.log("user connected " + socket.id);
-
   socket.emit("activeLobbies", activeLobbies);
 
   socket.on("createLobby", (lobby) => {
     let trimmedLobbyName = lobby.name.trim();
     socket.join(trimmedLobbyName);
-    console.log(`Client ${socket.id} created room ${trimmedLobbyName}`);
     activeRooms.add(trimmedLobbyName);
-    console.log(activeRooms);
-    console.log("Received createLobby event:", trimmedLobbyName);
-
     activeLobbies.push(lobby);
 
     io.emit("activeLobbies", activeLobbies);
   });
 
   socket.on("joinLobby", (lobbyName, player2) => {
-    console.log("Received joinLobby event:", lobbyName, player2);
-
     const lobby = activeLobbies.find((lobby) => lobby.name === lobbyName);
 
     if (!lobby) {
@@ -65,22 +57,14 @@ io.on("connection", (socket) => {
       lobby.player2 = player2;
       io.emit("activeLobbies", activeLobbies);
       socket.join(lobbyName);
-      console.log(`Client ${socket.id} joined room ${lobbyName}`);
     }
   });
 
   socket.on("startGameRequest", (data) => {
-    console.log("Lobby Name: ", data.lobbyName);
-    // io.emit("startGame", data);
     io.to(data.lobbyName).emit("startGame", data);
-    console.log(activeRooms);
-    //socket.emit("startGame", data);
-    // console.log("start event emitted");
   });
 
   socket.on("register", async (user) => {
-    //console.log("Received register event:", user);
-
     if (!user.username || !user.email || !user.password) {
       return socket.emit("registerError", {
         message: "Please fill in all fields!",
@@ -124,7 +108,6 @@ io.on("connection", (socket) => {
   });
 
   socket.on("readyClicked", (lobbyName) => {
-    console.log("Received readyClicked event:", lobbyName);
     socket.to(lobbyName).emit("readyClicked");
   });
 
@@ -163,24 +146,42 @@ io.on("connection", (socket) => {
     socket
       .to(data.lobbyName)
       .emit("selectedOptionChanged", data.selectedOption);
-    console.log(
-      "selectedOptionChanged event emitted " + data.selectedOption,
-      data.lobbyName
-    );
   });
 
   socket.on(
     "selectedSymbolChanged",
-    ({ lobbyName, activePlayer, selectedSymbol }) => {
+    ({ lobbyName, player, selectedSymbol }) => {
       socket.to(lobbyName).emit("selectedSymbolChanged", {
-        activePlayer,
+        player,
         selectedSymbol,
       });
     }
   );
 
+  socket.on("roundDone", (data) => {
+    const selectedOption = Number(data.selectedOption);
+    if (data.score[0] === selectedOption) {
+      io.in(data.lobbyName).emit("gameOver", {
+        winner: data.player1,
+        score: data.score,
+      });
+    } else if (data.score[1] === selectedOption) {
+      io.in(data.lobbyName).emit("gameOver", {
+        winner: data.player2,
+        score: data.score,
+      });
+    }
+  });
+
+  socket.on("playerReady", (data) => {
+    readyPlayers[data.player] = true;
+    if (Object.keys(readyPlayers).length === 2) {
+      io.in(data.lobbyName).emit("startRound");
+      readyPlayers = {};
+    }
+  });
+
   socket.on("disconnect", () => {
-    console.log("user disconnected " + socket.id);
     for (const room of socket.rooms) {
       activeRooms.delete(room);
     }
