@@ -1,4 +1,3 @@
-import React from "react";
 import { useAtom } from "jotai";
 import {
   activeLobbiesAtom,
@@ -40,18 +39,26 @@ function StartScreen() {
 
   return (
     <div className="text-center mt-10">
+      <button
+        className="absolute top-4 right-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        onClick={() => {
+          navigate("/leaderboard");
+        }}
+      >
+        Leaderboard
+      </button>
       <h1 className="text-3xl font-bold underline">Rock Paper Scissors</h1>
       <h2>By Oliver Wolfmayr and Felix Wacha</h2>
       <div className="mt-5">
         <h3>Active Lobbies:</h3>
         <ul>
           {activeLobbies.map((lobby) => (
-            <li key={lobby.name}>
+            <li key={lobby.name} className="mb-4">
               {lobby.name} - Player 1: {lobby.player1}, Player 2:{" "}
               {lobby.player2 || "Waiting..."}
               {lobby.player1 === activePlayer && (
                 <button
-                  className={`bg-green-500 text-white px-4 py-2 rounded-md mr-2 ${
+                  className={`bg-green-500 text-white px-4 py-2 rounded-md mr-2 font-bold ml-4 ${
                     !lobby.player2 && "hidden"
                   }`}
                   onClick={() =>
@@ -64,7 +71,7 @@ function StartScreen() {
               )}
               {lobby.player2 === activePlayer && (
                 <button
-                  className={`bg-green-500 text-white px-4 py-2 rounded-md mr-2`}
+                  className={`bg-green-500 text-white px-4 py-2 rounded-md mr-2 font-bold ml-4`}
                   onClick={() =>
                     handleLobbyClick(lobby.name, lobby.player1, lobby.player2)
                   }
@@ -74,7 +81,7 @@ function StartScreen() {
               )}
               {lobby.player1 !== activePlayer && !lobby.player2 && (
                 <button
-                  className="bg-blue-500 text-white px-4 py-2 rounded-md mr-2"
+                  className="bg-blue-500 text-white px-4 py-2 rounded-md mr-2 font-bold ml-4"
                   onClick={() => handleJoinLobbyClick(lobby.name)}
                 >
                   Join Lobby

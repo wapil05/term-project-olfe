@@ -3,15 +3,17 @@ import { atomWithStorage } from "jotai/utils";
 import io from "socket.io-client";
 import { Socket } from "socket.io-client";
 
-export const socketAtom = atom<Socket>(io("http://localhost:3000"));
+interface User {
+  id: number;
+  name: string;
+  wins: number;
+  losses: number;
+  roundsWon: number;
+  roundsLost: number;
+  flawlessVictories: number;
+}
 
-// socketAtom.onMount = (setSocket) => {
-//   const socket = io("http://localhost:3000");
-//   setSocket(socket);
-//   return () => {
-//     socket.disconnect();
-//   };
-// };
+export const socketAtom = atom<Socket>(io("http://localhost:3000"));
 
 export const lobbyNameAtom = atom<string>("");
 
@@ -28,3 +30,9 @@ export const lobbyAtom = atom<{
   player1: string;
   player2: string;
 } | null>(null);
+
+export const selectedOptionsAtom = atom<{ [key: string]: string }>({});
+
+export const isReadyAtom = atom<boolean>(false);
+
+export const usersAtom = atom<User[]>([]);

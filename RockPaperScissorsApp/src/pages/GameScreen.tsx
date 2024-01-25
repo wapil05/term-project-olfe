@@ -1,7 +1,12 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useAtom } from "jotai";
 import { useParams } from "react-router-dom";
-import { activePlayerAtom, socketAtom } from "../components/states";
+import {
+  activePlayerAtom,
+  socketAtom,
+  activeLobbiesAtom,
+} from "../components/states";
+import { useNavigate } from "react-router-dom";
 
 function GameScreen() {
   const [selectedSymbol, setSelectedSymbol] = useState("");
@@ -10,10 +15,14 @@ function GameScreen() {
   const [isTimerActive, setIsTimerActive] = useState(true);
   const [score, setScore] = useState([0, 0]);
   const [isReady, setIsReady] = useState(false);
+  const [isGameOver, setIsGameOver] = useState(false);
 
   const { player1, player2, lobbyName, selectedOption } = useParams();
   const [activePlayer] = useAtom(activePlayerAtom);
   const [socket] = useAtom(socketAtom);
+  const [activeLobbies] = useAtom(activeLobbiesAtom);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const countdown = setInterval(() => {
@@ -70,7 +79,9 @@ function GameScreen() {
       setIsReady(false);
     });
     socket.on("gameOver", (data) => {
+      console.log("Game over");
       console.log(data);
+      setIsGameOver(true);
     });
   }, []);
 
@@ -115,8 +126,35 @@ function GameScreen() {
     socket.emit("playerReady", { lobbyName, player: activePlayer });
   };
 
+  const handleHomeClick = () => {
+    navigate("/home");
+
+    socket.emit("closeLobby", { lobbyName });
+
+    for (let i = 0; i < activeLobbies.length; i++) {
+      if (activeLobbies[i].name === lobbyName) {
+        activeLobbies.splice(i, 1);
+      }
+    }
+  };
+
+  const handleLeaderboardClick = () => {
+    navigate("/leaderboard");
+
+    socket.emit("closeLobby", { lobbyName });
+
+    for (let i = 0; i < activeLobbies.length; i++) {
+      if (activeLobbies[i].name === lobbyName) {
+        activeLobbies.splice(i, 1);
+      }
+    }
+  };
+
   return (
     <div className="flex flex-col items-center justify-center h-screen border border-black bg-gray-100 p-2">
+      <h1 className={`text-4xl font-bold mb-4 ${!isGameOver && "hidden"}`}>
+        Game Over
+      </h1>
       <div className="mb-2 bg-gray-300 rounded-md p-2">
         <h1 className="text-4xl font-bold mb-1">
           {score[0]} : {score[1]}
@@ -142,8 +180,14 @@ function GameScreen() {
           </div>
         </div>
       </div>
-      <h3 className="text-3xl bg-gray-300 rounded-md p-1 mb-2">{timer}</h3>
-      <h2 className="text-lg mb-2">
+      <h3
+        className={`text-3xl bg-gray-300 rounded-md p-1 mb-2 ${
+          isGameOver && "hidden"
+        }`}
+      >
+        {timer}
+      </h3>
+      <h2 className={`text-lg mb-2 ${isGameOver && "hidden"}`}>
         Choose your symbol! {isTimerActive ? "⏳" : "⌛"}
       </h2>
       <div className="flex">
@@ -154,7 +198,7 @@ function GameScreen() {
             disabled={!isTimerActive}
             className={`bg-blue-500 text-white px-4 py-2 rounded cursor-pointer mr-2 ${
               !isTimerActive && "opacity-50 cursor-not-allowed"
-            }`}
+            } ${isGameOver && "hidden"}`}
           >
             {symbol}
           </button>
@@ -164,11 +208,28 @@ function GameScreen() {
         onClick={handleReadyClick}
         className={`px-4 py-2 rounded cursor-pointer mt-8 ${
           isReady ? "bg-green-500" : "bg-red-500"
-        } text-white ${isTimerActive && "opacity-50 cursor-not-allowed"}`}
+        } text-white ${isTimerActive && "opacity-50 cursor-not-allowed"} ${
+          isGameOver && "hidden"
+        }`}
         disabled={isTimerActive}
       >
         {isReady ? "Ready" : "Ready?"}
       </button>
+
+      <div className={`${!isGameOver && "hidden"} flex flex-col`}>
+        <button
+          className={`bg-blue-500 text-white px-4 py-2 rounded cursor-pointer mt-4`}
+          onClick={handleLeaderboardClick}
+        >
+          Show Leaderboard!
+        </button>
+        <button
+          className={`bg-blue-500 text-white px-4 py-2 rounded cursor-pointer mt-4`}
+          onClick={handleHomeClick}
+        >
+          Home
+        </button>
+      </div>
     </div>
   );
 }

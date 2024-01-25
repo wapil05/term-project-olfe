@@ -15,6 +15,9 @@ const {
   addRoundWin,
   addRoundLoss,
   addFlawlessVictory,
+  deleteUserStats,
+  getUserIdByName,
+  getAllUsers,
 } = require("./db/dbFunctions");
 
 const app = express();
@@ -163,18 +166,85 @@ io.on("connection", (socket) => {
     }
   );
 
-  socket.on("roundDone", (data) => {
+  socket.on("roundDone", async (data) => {
     const selectedOption = Number(data.selectedOption);
+
     if (data.score[0] === selectedOption) {
+      const winnerId = await getUserIdByName(data.player1);
+      const loserId = await getUserIdByName(data.player2);
+
+      const roundsWon = data.score[0];
+      const roundsLost = data.score[1];
+
       io.in(data.lobbyName).emit("gameOver", {
+        lobbyName: data.lobbyName,
         winner: data.player1,
         score: data.score,
       });
+
+      io.emit("gameDone");
+
+      activeLobbies = activeLobbies.filter(
+        (lobby) => lobby.name !== data.lobbyName
+      );
+
+      const winnerRoundsWonPromises = Array(roundsWon)
+        .fill()
+        .map(() => addRoundWin(winnerId));
+      const loserRoundsLostPromises = Array(roundsLost)
+        .fill()
+        .map(() => addRoundLoss(loserId));
+
+      await Promise.all([
+        addWin(winnerId),
+        addLoss(loserId),
+        ...winnerRoundsWonPromises,
+        ...loserRoundsLostPromises,
+        data.score[1] === 0 ? addFlawlessVictory(winnerId) : Promise.resolve(),
+      ]).catch((error) => {
+        console.error(error);
+      });
     } else if (data.score[1] === selectedOption) {
+      const winnerId = await getUserIdByName(data.player2);
+      const loserId = await getUserIdByName(data.player1);
+
+      const roundsWon = data.score[1];
+      const roundsLost = data.score[0];
+
       io.in(data.lobbyName).emit("gameOver", {
+        lobbyName: data.lobbyName,
         winner: data.player2,
         score: data.score,
       });
+
+      io.emit("gameDone");
+      //remove from activeLobbies
+      activeLobbies = activeLobbies.filter(
+        (lobby) => lobby.name !== data.lobbyName
+      );
+
+      const winnerRoundsWonPromises = Array(roundsWon)
+        .fill()
+        .map(() => addRoundWin(winnerId));
+      const loserRoundsLostPromises = Array(roundsLost)
+        .fill()
+        .map(() => addRoundLoss(loserId));
+
+      await Promise.all([
+        addWin(winnerId),
+        addLoss(loserId),
+        ...winnerRoundsWonPromises,
+        ...loserRoundsLostPromises,
+        data.score[0] === 0 ? addFlawlessVictory(winnerId) : Promise.resolve(),
+      ]).catch((error) => {
+        console.error(error);
+      });
+    }
+  });
+
+  socket.on("closeLobby", (lobbyName) => {
+    if (activeRooms.has(lobbyName)) {
+      activeRooms.delete(lobbyName);
     }
   });
 
@@ -198,49 +268,16 @@ server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
 
-
-// Routes zum Testen
-
-// Um einen Benutzer hinzuzufügen
-app.post("/addUser", async (req, res) => {
-  const { name, email, password, wins, losses, roundsWon, roundsLost, flawlessVictories } = req.body;
-
-  if (!name || !email || !password) {
-    return res
-      .status(400)
-      .json({ message: "Name, E-Mail und Passwort erforderlich" });
-  }
-
+app.get("/users", async (req, res) => {
   try {
-    const userId = await addUser(name, email, password, wins, losses, roundsWon, roundsLost, flawlessVictories);
-    res.json({ message: "Benutzer wurde hinzugefügt", userId });
+    const users = await getAllUsers();
+    res.json(users);
   } catch (error) {
-    res.status(500).json({ message: "Fehler beim Hinzufügen des Benutzers" });
+    res.status(500).json({ message: "Fehler beim Laden" });
   }
-}
-);
+});
 
-// Um sich zu registrieren
-app.post("/register", async (req, res) => {
-  const { name, email, password, wins, losses, roundsWon, roundsLost, flawlessVictories } = req.body;
-
-  if (!name || !email || !password) {
-    return res
-      .status(400)
-      .json({ message: "Username, E-Mail und Passwort erforderlich" });
-  }
-
-  try {
-    const userId = await addUser(name, email, password, wins, losses, roundsWon, roundsLost, flawlessVictories);
-    res.json({ message: "Benutzer wurde hinzugefügt", userId });
-  } catch (error) {
-    res.status(500).json({ message: "Fehler beim Hinzufügen des Benutzers" });
-  }
-}
-);
-
-// Route zum Erhöhen der Gewinne eines Benutzers
-app.post("/addWin/:userId", async (req, res) => {
+app.post("/deleteUserStats/:userId", async (req, res) => {
   const userId = req.params.userId;
 
   if (!userId) {
@@ -248,90 +285,12 @@ app.post("/addWin/:userId", async (req, res) => {
   }
 
   try {
-    const result = await addWin(userId);
-    res.json({ message: "Wurde erfolgreich hinzugefügt" });
+    const result = await deleteUserStats(userId);
+    res.json({ message: "Wurde erfolgreich gelöscht" });
   } catch (error) {
-    if (error.message === 'UserID nicht gefunden') {
-      return res.status(404).json({ message: 'UserID nicht gefunden' });
+    if (error.message === "UserID nicht gefunden") {
+      return res.status(404).json({ message: "UserID nicht gefunden" });
     }
-    res.status(500).json({ message: "Fehler beim Hinzufügen" });
+    res.status(500).json({ message: "Fehler beim Löschen" });
   }
 });
-
-// Route zum Erhöhen der Verluste eines Benutzers
-app.post("/addLoss/:userId", async (req, res) => {
-  const userId = req.params.userId;
-
-  if (!userId) {
-    return res.status(400).json({ message: "UserID erforderlich" });
-  }
-
-  try {
-    const result = await addLoss(userId);
-    res.json({ message: "Wurde erfolgreich hinzugefügt" });
-  } catch (error) {
-    if (error.message === 'UserID nicht gefunden') {
-      return res.status(404).json({ message: 'UserID nicht gefunden' });
-    }
-    res.status(500).json({ message: "Fehler beim Hinzufügen" });
-  }
-});
-
-// Route zum Erhöhen eines Sieges einer Runde (roundsWon) eines Benutzers
-app.post("/addRoundWin/:userId", async (req, res) => {
-  const userId = req.params.userId;
-
-  if (!userId) {
-    return res.status(400).json({ message: "UserID erforderlich" });
-  }
-
-  try {
-    const result = await addRoundWin(userId);
-    res.json({ message: "Wurde erfolgreich hinzugefügt" });
-  } catch (error) {
-    if (error.message === 'UserID nicht gefunden') {
-      return res.status(404).json({ message: 'UserID nicht gefunden' });
-    }
-    res.status(500).json({ message: "Fehler beim Hinzufügen" });
-  }
-});
-
-// Route zum Erhöhen eines verlorenen Spiels einer Runde (roundsLost) eines Benutzers
-app.post("/addRoundLoss/:userId", async (req, res) => {
-  const userId = req.params.userId;
-
-  if (!userId) {
-    return res.status(400).json({ message: "UserID erforderlich" });
-  }
-
-  try {
-    const result = await addRoundLoss(userId);
-    res.json({ message: "Wurde erfolgreich hinzugefügt" });
-  } catch (error) {
-    if (error.message === 'UserID nicht gefunden') {
-      return res.status(404).json({ message: 'UserID nicht gefunden' });
-    }
-    res.status(500).json({ message: "Fehler beim Hinzufügen" });
-  }
-});
-
-// Route zum Erhöhen von flawlessVictories von einem bestimmten Benutzer
-app.post("/addFlawlessVictory/:userId", async (req, res) => {
-  const userId = req.params.userId;
-
-  if (!userId) {
-    return res.status(400).json({ message: "UserID erforderlich" });
-  }
-
-  try {
-    const result = await addFlawlessVictory(userId);
-    res.json({ message: "Wurde erfolgreich hinzugefügt" });
-  } catch (error) {
-    if (error.message === 'UserID nicht gefunden') {
-      return res.status(404).json({ message: 'UserID nicht gefunden' });
-    }
-    res.status(500).json({ message: "Fehler beim Hinzufügen" });
-  }
-});
-
-

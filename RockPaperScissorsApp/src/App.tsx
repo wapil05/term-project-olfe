@@ -5,6 +5,7 @@ import StartScreen from "./pages/StartScreen";
 import LoginScreen from "./pages/LoginScreen";
 import LobbyScreen from "./pages/LobbyScreen";
 import GameScreen from "./pages/GameScreen";
+import LeaderBoardScreen from "./pages/LeaderboardScreen";
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
           path="/game/:lobbyName/:player1/:player2/:selectedOption"
           element={<GameScreen />}
         />
+        <Route path="/leaderBoard" element={<LeaderBoardScreen />} />
       </Routes>
     </Router>
   );

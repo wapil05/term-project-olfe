@@ -1,19 +1,37 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useAtom } from "jotai";
-import { activePlayerAtom, socketAtom } from "../components/states";
+import {
+  activePlayerAtom,
+  socketAtom,
+  selectedOptionsAtom,
+  isReadyAtom,
+} from "../components/states";
 
 function LobbyScreen() {
   const navigate = useNavigate();
   const { lobbyName, player1, player2 } = useParams();
 
   const [activePlayer] = useAtom(activePlayerAtom);
-
-  const [selectedOption, setSelectedOption] = useState("");
   const [isCreator, setisCreator] = useState(false);
   const [socket] = useAtom(socketAtom);
-  const [isReady, setIsReady] = useState(false);
+  const [isReady, setIsReady] = useAtom(isReadyAtom);
+
+  const [selectedOptions, setSelectedOptions] = useAtom(selectedOptionsAtom);
+
+  const selectedOption = lobbyName
+    ? selectedOptions[lobbyName as keyof typeof selectedOptions]
+    : "";
+
+  console.log("selectedOption:", selectedOption);
+
+  const setSelectedOption = (newSelectedOption: string) => {
+    setSelectedOptions((prevSelectedOptions) => ({
+      ...prevSelectedOptions,
+      [String(lobbyName)]: newSelectedOption,
+    }));
+  };
 
   useEffect(() => {
     socket.on("startGame", (data) => {
@@ -68,6 +86,8 @@ function LobbyScreen() {
       selectedOption,
     };
 
+    setIsReady(false);
+
     console.log("Starting game");
     socket.emit("startGameRequest", data);
     console.log("startGameRequest event emitted", data);
@@ -89,12 +109,12 @@ function LobbyScreen() {
         <h2 className="text-3xl font-bold mb-4">Lobby</h2>
         <h3 className="text-xl mb-6">Ready?</h3>
         <div className="flex justify-between mb-4">
-          <button className="bg-blue-500 text-white px-4 py-2 rounded cursor-pointer">
+          <h2 className="bg-blue-500 text-white px-4 py-2 rounded font-bold">
             {player1}
-          </button>
-          <button className="bg-blue-500 text-white px-4 py-2 rounded cursor-pointer">
+          </h2>
+          <h2 className="bg-blue-500 text-white px-4 py-2 rounded font-bold">
             {player2}
-          </button>
+          </h2>
         </div>
         <div className="mb-4">
           <h3 className="text-lg mb-2">
@@ -143,7 +163,7 @@ function LobbyScreen() {
         </div>
         {player1 === activePlayer && (
           <button
-            className={`text-white px-6 py-3 rounded cursor-pointer ${
+            className={`text-white px-6 py-3 rounded cursor-pointer font-bold ${
               !selectedOption || !isReady ? "bg-red-500" : "bg-green-500"
             }`}
             onClick={startGame}
@@ -154,7 +174,7 @@ function LobbyScreen() {
         )}
         {player2 === activePlayer && (
           <button
-            className={` text-white px-6 py-3 rounded cursor-pointer ${
+            className={` text-white px-6 py-3 rounded cursor-pointer font-bold ${
               !isReady ? "bg-red-500" : "bg-green-500"
             }`}
             onClick={handleReadyClick}
