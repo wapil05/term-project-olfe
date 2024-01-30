@@ -1,6 +1,6 @@
 // RegisterScreen.tsx
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import io from "socket.io-client";
 import { useAtom } from "jotai";
 import { activePlayerAtom } from "../components/states";
@@ -70,6 +70,13 @@ function RegisterScreen() {
 
   return (
     <div className="flex items-center justify-center h-screen">
+      <button
+        onClick={() => navigate("/login")}
+        className="absolute top-4 left-4 bg-blue-500 font-bold text-white px-4 py-2 rounded cursor-pointer transition duration-300 hover:bg-blue-700"
+      >
+        Login
+      </button>
+
       <div className="register-container p-8 border border-gray-300 rounded shadow-md text-center">
         <h2 className="text-2xl font-bold mb-6">Register</h2>
         <form className="register-form" onSubmit={handleSubmit(onSubmit)}>
@@ -178,17 +185,6 @@ function RegisterScreen() {
         {registrationError && (
           <p className="text-red-500 mt-2">{registrationError}</p>
         )}
-        <div className="mt-4 text-center border border-gray-300 rounded p-4">
-          <p className="text-xs text-blue-500" style={{ fontSize: "10px" }}>
-            Are you already registered?
-          </p>
-          <Link
-            to="/login"
-            className="inline-block bg-blue-500 text-white px-2 py-1 rounded transition duration-300 hover:bg-blue-700"
-          >
-            Login
-          </Link>
-        </div>
       </div>
     </div>
   );

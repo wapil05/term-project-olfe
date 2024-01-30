@@ -8,6 +8,7 @@ import {
   activePlayerAtom,
   socketAtom,
 } from "../components/states";
+import { useNavigate } from "react-router-dom";
 
 const CreateLobby: React.FC = () => {
   const [lobbyName, setLobbyName] = useAtom(lobbyNameAtom);
@@ -16,6 +17,8 @@ const CreateLobby: React.FC = () => {
   const [activePlayer] = useAtom(activePlayerAtom);
   const [error, setError] = useState<string | null>(null);
   const [socket] = useAtom(socketAtom);
+
+  const navigate = useNavigate();
 
   const handleCreateLobby = () => {
     const generatedLobbyName = lobbyName;
@@ -70,7 +73,17 @@ const CreateLobby: React.FC = () => {
         onChange={(e) => setLobbyName(e.target.value)}
         className="border px-2 py-1 rounded-md"
       />
-      {error && <p className="text-red-500">{error}</p>}
+      {error && (
+        <div>
+          <p className="text-red-500">{error}</p>
+          <button
+            className="bg-blue-500 text-white px-4 py-2 rounded cursor-pointer transition duration-300 hover:bg-blue-700"
+            onClick={() => navigate("/login")}
+          >
+            Login
+          </button>
+        </div>
+      )}
     </div>
   );
 };

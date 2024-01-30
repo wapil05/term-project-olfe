@@ -62,6 +62,12 @@ function LoginScreen() {
 
   return (
     <div className="flex items-center justify-center h-screen">
+      <button
+        onClick={() => navigate("/")}
+        className="absolute top-4 left-4 bg-blue-500 text-white font-bold px-4 py-2 rounded cursor-pointer transition duration-300 hover:bg-blue-700"
+      >
+        Register
+      </button>
       <div className="login-container p-8 border border-gray-300 rounded shadow-md text-center">
         <h2 className="text-2xl font-bold mb-6">Login</h2>
         <form className="login-form" onSubmit={handleSubmit(onSubmit)}>
