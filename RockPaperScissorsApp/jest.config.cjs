@@ -8,4 +8,5 @@ module.exports = {
   transform: {
     "^.+\\.(js|jsx|ts|tsx)$": "babel-jest",
   },
+  setupFilesAfterEnv: ['./jest.setup.js'],
 };

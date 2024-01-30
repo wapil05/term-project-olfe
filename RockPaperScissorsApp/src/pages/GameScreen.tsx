@@ -1,3 +1,4 @@
+import React from "react";
 import { useState, useEffect } from "react";
 import { useAtom } from "jotai";
 import { useParams } from "react-router-dom";
@@ -11,7 +12,7 @@ import { useNavigate } from "react-router-dom";
 function GameScreen() {
   const [selectedSymbol, setSelectedSymbol] = useState("");
   const [opponentSymbol, setOpponentSymbol] = useState("");
-  const [timer, setTimer] = useState(3);
+  const [timer, setTimer] = useState(5);
   const [isTimerActive, setIsTimerActive] = useState(true);
   const [score, setScore] = useState([0, 0]);
   const [isReady, setIsReady] = useState(false);
@@ -74,7 +75,7 @@ function GameScreen() {
     socket.on("startRound", () => {
       setSelectedSymbol("");
       setOpponentSymbol("");
-      setTimer(3);
+      setTimer(5);
       setIsTimerActive(true);
       setIsReady(false);
     });
