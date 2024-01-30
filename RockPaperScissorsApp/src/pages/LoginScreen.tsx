@@ -49,7 +49,6 @@ function LoginScreen() {
   useEffect(() => {
     const handleLoginError = (error: { message: string }) => {
       console.error("Login Error:", error.message);
-      // Eigene Fehlermeldung, wenn der Benutzername oder das Passwort falsch ist bzw. Nutzer nicht existiert
       const customMessage = "E-Mail oder Passwort ist falsch!";
       setLoginError(customMessage);
     };
@@ -67,7 +66,7 @@ function LoginScreen() {
         <h2 className="text-2xl font-bold mb-6">Login</h2>
         <form className="login-form" onSubmit={handleSubmit(onSubmit)}>
           <div className="mb-4">
-            <label htmlFor="usernameOrEmail" className="block font-semibold">
+            <label htmlFor="username" className="block font-semibold">
               Username:
             </label>
             <input
@@ -82,7 +81,16 @@ function LoginScreen() {
                 },
               })}
             />
-            <p className="text-red-500 text-xs mt-1" style={{ maxWidth: '300px', marginLeft: 'auto', marginRight: 'auto' }}>{errors.username?.message}</p>
+            <p
+              className="text-red-500 text-xs mt-1"
+              style={{
+                maxWidth: "300px",
+                marginLeft: "auto",
+                marginRight: "auto",
+              }}
+            >
+              {errors.username?.message}
+            </p>
           </div>
           <div className="mb-4">
             <label htmlFor="password" className="block font-semibold">
@@ -100,7 +108,16 @@ function LoginScreen() {
                 },
               })}
             />
-            <p className="text-red-500 text-xs mt-1" style={{ maxWidth: '300px', marginLeft: 'auto', marginRight: 'auto' }}>{errors.password?.message}</p>
+            <p
+              className="text-red-500 text-xs mt-1"
+              style={{
+                maxWidth: "300px",
+                marginLeft: "auto",
+                marginRight: "auto",
+              }}
+            >
+              {errors.password?.message}
+            </p>
           </div>
           <button
             type="submit"
