@@ -13,10 +13,16 @@ interface User {
   flawlessVictories: number;
 }
 
+// Very smart to move the socket connection into a shared atom.
+// You could use a read-only atom here, this way no one else would be able to
+// call a setter on it and override the connection.
 export const socketAtom = atom<Socket>(io("http://localhost:3000"));
 
 export const lobbyNameAtom = atom<string>("");
 
+// This one is only used in the createLobby component and there it 
+// only written but the value is never used. It probably 
+// could be a component state there.
 export const waitingForSecondPlayerAtom = atom<boolean>(false);
 
 export const activeLobbiesAtom = atom<

@@ -38,6 +38,8 @@ function GameScreen() {
     return () => clearInterval(countdown);
   }, [timer]);
 
+  // This is a very static constant and would not need to live within the components
+  // scope. Could be defined outside of the component function as well.
   const symbols = ["Rock", "Paper", "Scissors"];
 
   const handleSymbolClick = (symbol: string) => {
@@ -108,6 +110,10 @@ function GameScreen() {
     }
   }, [score]);
 
+  // This is a logic that probably would make sense to have on the server
+  // instead of handling some game logic on the client side. For simple logic
+  // like rock paper scissors, it's most likely not problematic. But generally you would want
+  // to do these calculations in a single place on the server.
   const getWinner = (player1Symbol: string, player2Symbol: string) => {
     if (player1Symbol === player2Symbol) {
       return "Draw";
@@ -197,6 +203,8 @@ function GameScreen() {
             key={symbol}
             onClick={() => handleSymbolClick(symbol)}
             disabled={!isTimerActive}
+            // For conditional classes you could look into libraries like
+            // classnames or clsx as this might read easier than a fairly long template literal
             className={`bg-blue-500 text-white px-4 py-2 rounded cursor-pointer mr-2 ${
               !isTimerActive && "opacity-50 cursor-not-allowed"
             } ${isGameOver && "hidden"}`}
