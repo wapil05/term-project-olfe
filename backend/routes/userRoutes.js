@@ -129,6 +129,9 @@ router.post("/register", async (req, res) => {
 });
 
 
+// All these routes are not really secured by a login credentials,
+// I can simply call them from the command line or anywhere else without credentials
+// and increase my wins and losses. 
 // Route zum Erhöhen der Gewinne eines Benutzers
 app.post("/addWin/:userId", async (req, res) => {
   const userId = req.params.userId;

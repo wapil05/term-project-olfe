@@ -277,6 +277,10 @@ app.get("/users", async (req, res) => {
   }
 });
 
+// This backend route never checks if the user calling this endpoint
+// is actually allowed to delete the user stats. Here you would check with a jwt
+// or other authorization patterns if the requester is actually allowed to call
+// this endpoint.
 app.post("/deleteUserStats/:userId", async (req, res) => {
   const userId = req.params.userId;
 

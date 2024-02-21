@@ -10,6 +10,8 @@ import { useNavigate } from "react-router-dom";
 
 function StartScreen() {
   const navigate = useNavigate();
+  // You could use useAtomValue if you only want to get the value 
+  // from the atom. This way you would not need the array destruct.
   const [activePlayer] = useAtom(activePlayerAtom);
   const [activeLobbies, setActiveLobbies] = useAtom(activeLobbiesAtom);
   const [socket] = useAtom(socketAtom);

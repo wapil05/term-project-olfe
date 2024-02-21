@@ -3,6 +3,10 @@ import React from "react";
 import { render, fireEvent } from "@testing-library/react";
 import CreateLobby from "../components/CreateLobby";
 
+// For all of these tests, you probably would want to use a custom render wrapper for
+// the testing library render, as it would need a BrowerRouter around to 
+// effectively use the useNavigate hook. 
+
 describe("CreateLobby component", () => {
   it("should handle creating a lobby", () => {
     jest.mock("../components/states", () => ({

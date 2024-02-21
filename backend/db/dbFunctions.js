@@ -5,6 +5,12 @@ const dbPath = "./db/olfe.db"; // Pfad zur Datenbank
 // Funktion zum Initialisieren der Datenbanken user
 async function initializeDatabase() {
   return new Promise((resolve, reject) => {
+    // If you need to create this database connection in every function
+    // this might have quite the timing overhead once this would not be
+    // a local database on your system but on in a distributed system. 
+    // when you call hte new Database, this will establish the connections. 
+    // you might want to share this connection for the .js module and how
+    // establish it in every function and close it back down again. 
     const db = new sqlite3.Database(dbPath);
 
     db.serialize(() => {
